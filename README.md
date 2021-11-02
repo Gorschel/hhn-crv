@@ -12,7 +12,7 @@ Inhalt
 	- entraucshen
 	- bel ausgleich
 	- bin
-	- cnt		
+	- cnt
 	- roi
 - Methode A briefmarke indirekt finden
 	- textfeld über bin
