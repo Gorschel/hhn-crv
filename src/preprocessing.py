@@ -50,6 +50,7 @@ class PreProcessing(object):
 
 
 if __name__ ==  '__main__':
-    img = cv2.imread("../data/IMG_20211102_171029.jpg")
+    img = cv2.resize(cv2.imread("../data/IMG_20211102_171029.jpg"), (0, 0), fx=0.15, fy=0.15)
     Test = PreProcessing(img)
+    cv2.waitKey()
 
