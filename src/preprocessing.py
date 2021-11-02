@@ -19,7 +19,7 @@ class PreProcessing(object):
         self.flt = self.filter(img)
         self.ilm = self.fix_illum(self.flt)
 
-        
+
         self.bin = self.threshhold(self.ilm)
         self.cnt = self.contours(self.bin)
         """
@@ -31,7 +31,7 @@ class PreProcessing(object):
         L, a, b = cv2.split(lab)
         Ln = cv2.equalizeHist(L)
         # combine and convert 2 BGR
-        return cv2.merge((Ln, a, b))
+        return cv2.cvtColor(cv2.merge((Ln, a, b)), cv2.COLOR_LAB2BGR)
 
     def filter(self,img):
         return img
