@@ -111,3 +111,4 @@ while True:
     key = cv.waitKey(30)
     if key == ord('q') or key == 27:
         break
+
