@@ -15,13 +15,14 @@ class PreProcessing(object):
         #self.claheimg = self.clahe()
         #cv2.imshow("clahe", self.claheimg)
 
-        self.flt = self.filter(self.img)
-        self.ilm = self.fix_illum(self.flt)
-
-        self.binimg = self.threshhold(self.ilm)
-        cv2.imshow("bin", self.binimg)
-        self.cnts, self.hierarchy = self.contours(self.binimg)
-        roi = self.find_roi(self.binimg)
+        self.img_flt = self.filter(self.img)
+        self.img_ilm = self.fix_illum(self.img_flt)
+        self.img_bin = self.threshhold(self.img_ilm)
+        self.rect = None
+        self.rect_min = None
+        self.img_roi = None
+        self.cnts, self.hierarchy = self.contours(self.img_bin)
+        self.img_warp = self.warpImage(self.img_bin)
 
     def clahe(self):
         # BGR 2 Lab
@@ -45,26 +46,30 @@ class PreProcessing(object):
 
     def contours(self,img):
         cnts, hierarchy = cv2.findContours(img,cv2.RETR_CCOMP,cv2.CHAIN_APPROX_SIMPLE)
-        
         for (cnt, hie) in zip(cnts, hierarchy[0]):      
             if hie[2] >= 0 and hie[3] < 0: # contour has child(s) but no parent
                 x,y,w,h = cv2.boundingRect(cnt)
-                plot = cv2.rectangle(self.binimg,(x,y),(x+w,y+h),(0,255,0),2)
-                cv2.imshow('plot', plot)
-                               
-                mask = self.binimg.copy() #np.zeros((h,w)) #! wert wird auch später immer auf 0 gesetzt
+                self.rect_min = cv2.minAreaRect(cnt)
+                self.rect = x,y,w,h
+                plot = cv2.rectangle(self.img_bin,(x,y),(x+w,y+h),(0,255,0),2)
+                cv2.imshow('plot', plot)          
+                mask = self.img_bin.copy() #np.zeros((h,w)) #! wert wird auch später immer auf 0 gesetzt
                 mask[:,:] = 0 # maske leeren 
                 cv2.fillPoly(mask, [cnt], 255)
-                img_bin_roi = cv2.bitwise_and(self.binimg[y:y+h, x:x+w], mask[y:y+h, x:x+w]) # remove any other objects in roi  
-                img_roi = self.img[y:y+h, x:x+w] # für pixelzugriff mit schwerpunktkordinaten nötig
+                img_bin_roi = cv2.bitwise_and(self.img_bin[y:y+h, x:x+w], mask[y:y+h, x:x+w]) # remove any other objects in roi  
+                self.img_roi = self.img[y:y+h, x:x+w] # für pixelzugriff mit schwerpunktkordinaten nötig
                 #cv2.imshow('mask', mask)  
-                cv2.imshow('bin_roi', img_bin_roi)
-                cv2.imshow('img roi', img_roi)
+                #cv2.imshow('bin_roi', img_bin_roi)
+                cv2.imshow('img roi', self.img_roi)
+                cv2.waitKey()
         
         return cnts, hierarchy
 
-    def find_roi(self,img):
-        return img
+    def warpImage(self,img):
+        pts_src = np.array([[17.0,0.0], [77.0,5.0], [0.0, 552.0],[53.0, 552.0]])
+        pts_src = np.array([ [],[],[],[] ])
+        h, _ = cv2.findHomography(self.rect_min, self.rect)
+        return cv2.warpPerspective(self.img_roi, h,(self.img_roi.shape[1],self.img_roi.shape[0]))
 
 
 if __name__ ==  '__main__':
