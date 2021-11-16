@@ -21,6 +21,7 @@ class PreProcessing(object):
         self.rect = None
         self.rect_min = None
         self.img_roi = None
+        self.box = None
         self.cnts, self.hierarchy = self.contours(self.img_bin)
         self.img_warp = self.warpImage(self.img_bin)
 
@@ -47,28 +48,36 @@ class PreProcessing(object):
     def contours(self,img):
         cnts, hierarchy = cv2.findContours(img,cv2.RETR_CCOMP,cv2.CHAIN_APPROX_SIMPLE)
         for (cnt, hie) in zip(cnts, hierarchy[0]):      
-            if hie[2] >= 0 and hie[3] < 0: # contour has child(s) but no parent
-                x,y,w,h = cv2.boundingRect(cnt)
-                self.rect_min = cv2.minAreaRect(cnt)
-                self.rect = x,y,w,h
-                plot = cv2.rectangle(self.img_bin,(x,y),(x+w,y+h),(0,255,0),2)
-                cv2.imshow('plot', plot)          
-                mask = self.img_bin.copy() #np.zeros((h,w)) #! wert wird auch später immer auf 0 gesetzt
-                mask[:,:] = 0 # maske leeren 
-                cv2.fillPoly(mask, [cnt], 255)
-                img_bin_roi = cv2.bitwise_and(self.img_bin[y:y+h, x:x+w], mask[y:y+h, x:x+w]) # remove any other objects in roi  
-                self.img_roi = self.img[y:y+h, x:x+w] # für pixelzugriff mit schwerpunktkordinaten nötig
-                #cv2.imshow('mask', mask)  
-                #cv2.imshow('bin_roi', img_bin_roi)
-                cv2.imshow('img roi', self.img_roi)
-                cv2.waitKey()
+            if hie[2] >= 0 and hie[3] == -1: # contour has child(s) but no parent
+                if cv2.contourArea(cnt) > img.size/4: # kleine konturen ignorieren ( > 1/4 Bildfläche)
+                    self.rect_min = cv2.minAreaRect(cnt)
+                    x,y,w,h = cv2.boundingRect(cnt)
+                    self.rect = x,y,w,h
+                    box = cv2.boxPoints(self.rect_min)
+                    self.box = np.int0(box)
+                    #TODO# nice2hab trapezförmige bilder -> 4 eckpunkte finden
+
+                    plot = cv2.rectangle(self.img.copy(),(x,y),(x+w,y+h),(0,255,0),1)
+                    #cv2.drawContours(plot,[box], 0, (255,0,0),1)
+                    cv2.imshow('plot', plot) 
+                    cv2.imwrite("demo.jpg", plot)  
+
+                    mask = self.img_bin.copy() #np.zeros((h,w)) #! wert wird auch später immer auf 0 gesetzt
+                    mask[:,:] = 0 # maske leeren 
+                    cv2.fillPoly(mask, [cnt], 255)
+                    img_bin_roi = cv2.bitwise_and(self.img_bin[y:y+h, x:x+w], mask[y:y+h, x:x+w]) # remove any other objects in roi  
+                    self.img_roi = self.img[y:y+h, x:x+w] # für pixelzugriff mit schwerpunktkordinaten nötig
+                    #cv2.imshow('mask', mask)  
+                    #cv2.imshow('bin_roi', img_bin_roi)
+                    cv2.imshow('img roi', self.img_roi)
+                    cv2.waitKey()
         
         return cnts, hierarchy
 
     def warpImage(self,img):
-        pts_src = np.array([[17.0,0.0], [77.0,5.0], [0.0, 552.0],[53.0, 552.0]])
-        pts_src = np.array([ [],[],[],[] ])
-        h, _ = cv2.findHomography(self.rect_min, self.rect)
+        x,y,w,h = self.box
+        pts_dst = np.array([[x, y], [x, y+h], [x+w, y+h],[x+w, h]])
+        h, _ = cv2.findHomography(self.box, pts_dst)
         return cv2.warpPerspective(self.img_roi, h,(self.img_roi.shape[1],self.img_roi.shape[0]))
 
 
