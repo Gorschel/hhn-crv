@@ -2,6 +2,13 @@ import cv2 as cv
 import numpy as np
 
 from discriminator import Discriminator
+import pathlib
+
+data_dir = pathlib.Path(pathlib.Path.home(), 'PycharmProjects/hhn-crv/data')
+
+data_stamped = list(data_dir.glob('stamped_pics/*'))
+
+data_unstamped = list(data_dir.glob('unstamped_pics/*'))
 
 pic_path = '../data/IMG_20211102_170950.jpg'
 video_path = '../data/VID_20211102_171059.mp4'
