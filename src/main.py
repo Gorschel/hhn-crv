@@ -21,7 +21,7 @@ beta = [cr, cg, cb]
 
 disc_obj = Discriminator()
 
-disc_obj.set_mode(mode=0)
+disc_obj.set_mode(mode=2)
 # mode=0, pic
 #     =1, video
 #     =2, live
@@ -43,6 +43,9 @@ elif disc_obj.mode == 1:
             break
     disc_obj.release_vid()
 
+elif disc_obj.mode == 2:
+    pass
+
 else:
     disc_obj.set_vid(cv.VideoCapture(0))
     while True:
@@ -52,6 +55,11 @@ else:
         disc_obj.illumination()
 
     disc_obj.release_vid()
+
+disc_obj.set_stamped_data(data_stamped)
+#disc_obj.set_unstamped_data((data_unstamped))
+disc_obj.cropp_stamped()
+#disc_obj.cropp_unstamped()
 
 
 
