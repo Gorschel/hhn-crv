@@ -1,22 +1,36 @@
 import cv2
 import numpy as np
 
-class Discriminator():
+class test (object):
     def __init__(self):
-        self.vid = None
+        self.data = None
         self.mode = None
-        self.curr_frame = None
+        self.img = None
 
-    def set_mode(self, mode):
+    def set_mode(self, mode:int, path:str):
+        """
+        modes:
+        0: single picture
+        1: video file
+        2: live
+        """
+        last = self.mode
         self.mode = mode
+        if mode == 0:
+            pass
+        if mode == 1:
+            print("videomode")
+            self.data = cv2.VideoCapture(path)
+        if mode == 2:
+            pass
 
-    def display_frame(self):
-        cv2.imshow("current status of frame", self.curr_frame)
+    def display_frame(self, name="current status of frame"):
+        cv2.imshow(name, self.img)
 
     def read_frame(self):
         ret, self.curr_frame = self.vid.read()
         self.curr_frame = cv2.resize(self.curr_frame, (0, 0), fx=0.15, fy=0.15)
-        #cv2.imshow("read",self.curr_frame)
+        #cv.imshow("read",self.curr_frame)
 
     def set_vid(self, vid):
         self.vid = vid
@@ -33,7 +47,4 @@ class Discriminator():
         #            self.curr_frame[y, x, c] = np.clip(alpha * self.curr_frame[y, x, c] + beta[c], 0, 255)
 
         self.display_frame()
-
-
-
 
