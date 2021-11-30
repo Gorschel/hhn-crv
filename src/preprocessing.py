@@ -60,7 +60,7 @@ class PreProcessing(object):
                     plot = cv2.rectangle(self.img.copy(),(x,y),(x+w,y+h),(0,255,0),1)
                     #cv2.drawContours(plot,[box], 0, (255,0,0),1)
                     cv2.imshow('plot', plot) 
-                    cv2.imwrite("demo.jpg", plot)  
+                    #cv2.imwrite("demo.jpg", plot)  
 
                     mask = self.img_bin.copy() #np.zeros((h,w)) #! wert wird auch später immer auf 0 gesetzt
                     mask[:,:] = 0 # maske leeren 
