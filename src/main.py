@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import cv2 as cv
 import numpy as np
 
@@ -60,8 +63,3 @@ disc_obj.set_stamped_data(data_stamped)
 #disc_obj.set_unstamped_data((data_unstamped))
 disc_obj.cropp_stamped()
 #disc_obj.cropp_unstamped()
-
-
-
-
-

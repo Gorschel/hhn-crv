@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import cv2
 import numpy as np
 import pathlib
@@ -57,7 +60,7 @@ class Discriminator():
             if hie[2] >= 0 and hie[3] == -1:  # contour has child(s) but no parent
                 print('cnt found')
 
-                if cv2.contourArea(cnt) > self.curr_frame.size / 4:  # kleine konturen ignorieren ( > 1/4 Bildfläche)
+                if cv2.contourArea(cnt) > self.curr_frame.size / 4:  # kleine konturen ignorieren ( > 1/4 Bildflaeche)
                     self.rect_min = cv2.minAreaRect(cnt)
                     x, y, w, h = cv2.boundingRect(cnt)
                     self.rect = x, y, w, h
