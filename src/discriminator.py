@@ -18,10 +18,10 @@ class Discriminator():
         self.stamped = None
         self.data_stamped = None
         self.data_unstamped = None
-        self.dir_stamped = pathlib.Path(pathlib.Path.home(), 'PycharmProjects/hhn-crv/data/stamped_cropped')
-        self.dir_unstamped = pathlib.Path(pathlib.Path.home(), 'PycharmProjects/hhn-crv/data/unstamped_cropped')
-        self.dir_stamped_black = pathlib.Path(pathlib.Path.home(), 'PycharmProjects/hhn-crv/data/stamped_cropped_black')
-        self.dir_unstamped_black = pathlib.Path(pathlib.Path.home(), 'PycharmProjects/hhn-crv/data/unstamped_cropped_black')
+        self.dir_stamped = pathlib.Path(pathlib.Path.cwd(), 'data/stamped_cropped')
+        self.dir_unstamped = pathlib.Path(pathlib.Path.cwd(), 'data/unstamped_cropped')
+        self.dir_stamped_black = pathlib.Path(pathlib.Path.cwd(), 'data/stamped_cropped_black')
+        self.dir_unstamped_black = pathlib.Path(pathlib.Path.cwd(), 'data/unstamped_cropped_black')
 
     def set_mode(self, mode):
         self.mode = mode
@@ -157,7 +157,7 @@ class Discriminator():
     def cut_black_bg(self, img):
         #cv2.imshow("bin", self.img_bin)
         cnts, hierarchy = cv2.findContours(self.img_bin, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-        for (cnt, hie) in zip(cnts, hierarchy[0]):
+        for (cnt, hie) in zip(cnts, hierarchy):
             if cv2.contourArea(cnt) > img.size / 20:  # kleine konturen ignorieren ( > 1/4 Bildfläche)
                 self.rect_min = cv2.minAreaRect(cnt)
                 self.crop_minAreaRect(self.curr_frame, self.rect_min)
