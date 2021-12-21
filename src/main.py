@@ -9,9 +9,9 @@ import pathlib
 
 data_dir = pathlib.Path(pathlib.Path.home(), 'PycharmProjects/hhn-crv/data')
 
-data_stamped = list(data_dir.glob('stamped_pics/*'))
+data_stamped = list(data_dir.glob('stamped/*'))
 
-data_unstamped = list(data_dir.glob('unstamped_pics/*'))
+data_unstamped = list(data_dir.glob('unstamped/*'))
 
 pic_path = '../data/IMG_20211102_170950.jpg'
 video_path = '../data/VID_20211102_171059.mp4'
@@ -24,16 +24,16 @@ beta = [cr, cg, cb]
 
 disc_obj = Discriminator()
 
-disc_obj.set_mode(mode=2)
+disc_obj.set_mode(mode=0)
 # mode=0, pic
 #     =1, video
 #     =2, live
 
 if disc_obj.mode == 0:
     print("picmode")
-    disc_obj.curr_frame = cv.resize(cv.imread(pic_path, 1), (0, 0), fx=0.15, fy=0.15)
-    disc_obj.illumination(alpha=c0, beta=beta)
-    cv.waitKey()
+    #disc_obj.curr_frame = cv.resize(cv.imread(pic_path, 1), (0, 0), fx=0.5, fy=0.5)
+    #disc_obj.illumination(alpha=c0, beta=beta)
+    #cv.waitKey()
 
 elif disc_obj.mode == 1:
     print("videomode")
@@ -60,6 +60,9 @@ else:
     disc_obj.release_vid()
 
 disc_obj.set_stamped_data(data_stamped)
-#disc_obj.set_unstamped_data((data_unstamped))
-disc_obj.cropp_stamped()
+disc_obj.set_unstamped_data((data_unstamped))
+disc_obj.set_data_type(False)#False->stamped
+disc_obj.crop_black_bg()
+disc_obj.set_data_type(True)#True->unstamped
+disc_obj.crop_black_bg()
 #disc_obj.cropp_unstamped()

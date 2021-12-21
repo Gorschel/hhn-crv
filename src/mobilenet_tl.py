@@ -25,13 +25,13 @@ IMAGE_SHAPE = (224, 224)
 data_dir = pathlib.Path(pathlib.Path.home(), 'PycharmProjects/hhn-crv/data')
 
 
-data_stamped = list(data_dir.glob('stamped_pics/*'))
+data_stamped = list(data_dir.glob('stamped_cropped/*'))
 
-data_unstamped = list(data_dir.glob('unstamped_pics/*'))
+data_unstamped = list(data_dir.glob('unstamped_cropped/*'))
 
 letters_images_dict = {
-  'stamped': list(data_dir.glob('stamped_pics/*')),
-  'unstamped': list(data_dir.glob('unstamped_pics/*')),
+  'stamped': list(data_dir.glob('stamped_cropped/*')),
+  'unstamped': list(data_dir.glob('unstamped_cropped/*')),
 }
 
 letters_labels_dict = {
@@ -73,6 +73,8 @@ model.compile(
   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
   metrics=['acc'])
 
-model.fit(X_train_scaled, y_train, epochs=5)
+model.fit(X_train_scaled, y_train, epochs=20)
+print("eval")
 
 model.evaluate(X_test_scaled, y_test)
+print(len(y_test))
