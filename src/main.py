@@ -7,7 +7,7 @@ import numpy as np
 from discriminator import Discriminator
 import pathlib
 
-data_dir = pathlib.Path(pathlib.Path.cwd(), 'data')
+data_dir = pathlib.Path(pathlib.Path.cwd().parent, 'data')
 
 data_stamped = list(data_dir.glob('stamped/*'))
 

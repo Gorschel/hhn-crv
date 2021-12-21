@@ -18,10 +18,10 @@ class Discriminator():
         self.stamped = None
         self.data_stamped = None
         self.data_unstamped = None
-        self.dir_stamped = pathlib.Path(pathlib.Path.cwd(), 'data/stamped_cropped')
-        self.dir_unstamped = pathlib.Path(pathlib.Path.cwd(), 'data/unstamped_cropped')
-        self.dir_stamped_black = pathlib.Path(pathlib.Path.cwd(), 'data/stamped_cropped_black')
-        self.dir_unstamped_black = pathlib.Path(pathlib.Path.cwd(), 'data/unstamped_cropped_black')
+        self.dir_stamped = pathlib.Path(pathlib.Path.cwd().parent, 'data/stamped_cropped')
+        self.dir_unstamped = pathlib.Path(pathlib.Path.cwd().parent, 'data/unstamped_cropped')
+        self.dir_stamped_black = pathlib.Path(pathlib.Path.cwd().parent, 'data/stamped_cropped_black')
+        self.dir_unstamped_black = pathlib.Path(pathlib.Path.cwd().parent, 'data/unstamped_cropped_black')
 
     def set_mode(self, mode):
         self.mode = mode
@@ -84,11 +84,11 @@ class Discriminator():
         grey_rot = cv2.cvtColor(img_rot, cv2.COLOR_BGR2GRAY)
         _, img_bin = cv2.threshold(grey_rot, 100, 255, cv2.THRESH_OTSU)
         cnts, hierarchy = cv2.findContours(img_bin, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-        cv2.imshow("bin", img_bin)
+        #cv2.imshow("bin", img_bin)
 
         for (cnt, hie) in zip(cnts, hierarchy[0]):
-
-            if cv2.contourArea(cnt) > img.size / 30:  # kleine konturen ignorieren ( > 1/4 Bildfläche)
+            #print(self.count)
+            if cv2.contourArea(cnt) > img.size / 20:  # kleine konturen ignorieren ( > 1/4 Bildfläche)
             #if hie[2] >= 0 and hie[3] < 0:  # contour has child(s) but no parent
                 self.rect_min = cv2.boundingRect(cnt)
                 #box = cv2.boxPoints(self.rect_min)
@@ -108,8 +108,9 @@ class Discriminator():
                 key = cv2.waitKey()
                 self.count = self.count+1
                 if key == 103: #g taste
-                    #print(str(pathlib.Path(self.dir_stamped, str(self.count) + '.jpg')))
+                    #print(str(pathlib.Path(dirname, str(self.count)+"_"+str(sub_cnt) + '.jpg')))
                     cv2.imwrite(str(pathlib.Path(dirname, str(self.count)+"_"+str(sub_cnt) + '.jpg')), img_crop)
+
 
 
                 if key == 115: #s taste
@@ -155,8 +156,11 @@ class Discriminator():
             counter += 1
 
     def cut_black_bg(self, img):
-        #cv2.imshow("bin", self.img_bin)
+
+        morph_img= cv2.morphologyEx(self.img_bin, cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8), iterations=1, borderType = cv2.MORPH_RECT)
+        cv2.imshow("bin", morph_img)
         cnts, hierarchy = cv2.findContours(self.img_bin, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+
         for (cnt, hie) in zip(cnts, hierarchy):
             if cv2.contourArea(cnt) > img.size / 20:  # kleine konturen ignorieren ( > 1/4 Bildfläche)
                 self.rect_min = cv2.minAreaRect(cnt)
