@@ -169,9 +169,7 @@ class Discriminator():
 
     def set_vid(self, vid):
         self.vid = vid
-
-        cv2.imwrite('',self.curr_frame)
-
+        cv2.imwrite('', self.curr_frame)
 
     def release_vid(self):
         self.vid.release()

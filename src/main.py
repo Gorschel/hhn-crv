@@ -7,7 +7,8 @@ import numpy as np
 from discriminator import Discriminator
 import pathlib
 
-data_dir = pathlib.Path(pathlib.Path.home(), 'PycharmProjects/hhn-crv/data')
+root = pathlib.Path.cwd()
+data_dir = pathlib.Path(root, 'data')
 
 data_stamped = list(data_dir.glob('stamped/*'))
 
