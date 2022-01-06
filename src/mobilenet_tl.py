@@ -51,7 +51,8 @@ for category, images in letters_images_dict.items():
 X = np.array(X)
 y = np.array(y)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
+#X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0) # ist mit seed, reproduzierbar
+X_train, X_test, y_train, y_test = train_test_split(X, y)
 
 X_train_scaled = X_train / 255
 X_test_scaled = X_test / 255
@@ -61,20 +62,41 @@ pretrained_model_without_top_layer = hub.KerasLayer(feature_extractor_model, inp
 
 num_classes = 2
 
-model = tf.keras.Sequential([
-  pretrained_model_without_top_layer,
-  tf.keras.layers.Dense(num_classes)
-])
+model = tf.keras.Sequential([pretrained_model_without_top_layer, tf.keras.layers.Dense(num_classes)])
 
 model.summary()
 
-model.compile(
-  optimizer="adam",
-  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-  metrics=['acc'])
+model.compile(optimizer="adam", loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['acc'])
+#plt.axis('off')
+#plt.imshow(X[1])
 
-model.fit(X_train_scaled, y_train, epochs=20)
+model.fit(X_train_scaled, y_train, epochs=5)
 print("eval")
 
 model.evaluate(X_test_scaled, y_test)
 print(len(y_test))
+
+
+
+#result = model.predict(Image.open("goldfish.jpg").resize(IMAGE_SHAPE)[np.newaxis, ...])
+result = model.predict(np.array([X_test_scaled[0]]))
+#print(np.array(X_test_scaled[0]).shape)
+
+
+
+predicted_label_index = np.argmax(result)
+print(predicted_label_index)
+failcont = 0
+for i in range(len(X_test)):
+    result = model.predict(np.array([X_test_scaled[i]]))
+    predicted_label_index = np.argmax(result)
+    if predicted_label_index != y_test[i]:
+        print(i)
+        failcont +=1
+        plt.imshow(X[i])
+        plt.show()
+
+
+print("score:")
+print(1-(failcont/len(y_test)))
+

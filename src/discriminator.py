@@ -53,6 +53,7 @@ class Discriminator():
             self.gray = cv2.cvtColor(self.gray, cv2.COLOR_BGR2GRAY)
 
             _, self.img_bin = cv2.threshold(self.gray, 100, 255, cv2.THRESH_OTSU)
+            #self.img_bin = cv2.adaptiveThreshold(self.gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 151, 0)
 
             self.cut_black_bg(self.curr_frame)
             #cv2.imshow('status', self.curr_frame)
@@ -66,6 +67,9 @@ class Discriminator():
 
     def crop_minAreaRect(self, img, rect):
         sub_cnt = 0
+        print(self.count)
+        #cv2.imshow("start img", img)
+        #cv2.waitKey()
         if self.data_type:
             dirname = self.dir_unstamped
         else:
@@ -79,17 +83,20 @@ class Discriminator():
 
         M = cv2.getRotationMatrix2D((cols / 2, rows / 2), -angle, 1)
         img_rot = cv2.warpAffine(img, M, (cols, rows))
-        cv2.imshow("rot", img_rot)
+        #cv2.imshow("rot", img_rot)
 
         grey_rot = cv2.cvtColor(img_rot, cv2.COLOR_BGR2GRAY)
         _, img_bin = cv2.threshold(grey_rot, 100, 255, cv2.THRESH_OTSU)
-        cnts, hierarchy = cv2.findContours(img_bin, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-        #cv2.imshow("bin", img_bin)
+        morph_img = cv2.morphologyEx(img_bin, cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8), iterations=1, borderType=cv2.MORPH_RECT)
+
+        cnts, hierarchy = cv2.findContours(morph_img, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+        #cv2.imshow("bin2", morph_img)
 
         for (cnt, hie) in zip(cnts, hierarchy[0]):
             #print(self.count)
-            if cv2.contourArea(cnt) > img.size / 20:  # kleine konturen ignorieren ( > 1/4 Bildfläche)
+            if cv2.contourArea(cnt) > img.size / 100:  # kleine konturen ignorieren ( > 1/4 Bildfläche)
             #if hie[2] >= 0 and hie[3] < 0:  # contour has child(s) but no parent
+                print("-"+ str(sub_cnt))
                 self.rect_min = cv2.boundingRect(cnt)
                 #box = cv2.boxPoints(self.rect_min)
                 #box = np.int0(self.rect_min)
@@ -98,7 +105,7 @@ class Discriminator():
                 x, y, w, h = self.rect_min
                 #cv2.rectangle(img_rot, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-                cv2.imshow("rahmen", img_rot)
+                #cv2.imshow("rahmen", img_rot)
 
                 img_crop = img_rot[y:y+h, x:x+w]
                 cv2.imshow("croped", img_crop)
@@ -110,6 +117,7 @@ class Discriminator():
                 if key == 103: #g taste
                     #print(str(pathlib.Path(dirname, str(self.count)+"_"+str(sub_cnt) + '.jpg')))
                     cv2.imwrite(str(pathlib.Path(dirname, str(self.count)+"_"+str(sub_cnt) + '.jpg')), img_crop)
+                    print("bild gut")
 
 
 
@@ -156,15 +164,33 @@ class Discriminator():
             counter += 1
 
     def cut_black_bg(self, img):
+        #print(self.count)
 
-        morph_img= cv2.morphologyEx(self.img_bin, cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8), iterations=1, borderType = cv2.MORPH_RECT)
-        cv2.imshow("bin", morph_img)
-        cnts, hierarchy = cv2.findContours(self.img_bin, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+        morph_img = cv2.morphologyEx(self.img_bin, cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8), iterations=1, borderType=cv2.MORPH_RECT)
+        #cv2.imshow("bin", morph_img)
+        #cv2.imshow("curr", self.curr_frame)
+
+        #area = self.rect_min.height
+        #print(self.rect_min.height)
+
+        cnts, hierarchy = cv2.findContours(morph_img, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+
 
         for (cnt, hie) in zip(cnts, hierarchy):
-            if cv2.contourArea(cnt) > img.size / 20:  # kleine konturen ignorieren ( > 1/4 Bildfläche)
+
+            #print(cv2.contourArea(cnt))
+
+            #cv2.waitKey()
+
+            if cv2.contourArea(cnt) > img.size / 100:  # kleine konturen ignorieren ( > 1/4 Bildfläche)
+                #print("good size")
+
                 self.rect_min = cv2.minAreaRect(cnt)
                 self.crop_minAreaRect(self.curr_frame, self.rect_min)
+
+            else:
+                #print("too small")
+                pass
 
     def read_frame(self):
         ret, self.curr_frame = self.vid.read()
