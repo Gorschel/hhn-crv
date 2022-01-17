@@ -92,7 +92,7 @@ for i in range(len(X_test)):
     predicted_label_index = np.argmax(result)
     if predicted_label_index != y_test[i]:
         print(i)
-        failcont +=1
+        failcont += 1
         plt.imshow(X[i])
         plt.show()
 
