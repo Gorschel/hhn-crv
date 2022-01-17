@@ -15,6 +15,12 @@ class Discriminator():
         self.gray = None
         self.curr_frame_original = None
         self.img_bin = None
+        self.img_bin1 = None
+        self.img_binmorph1 = None
+        self.img_rot_col = None
+        self.img_grey_bg = None
+        self.img_bin2 = None
+        self.img_binmorph2 = None
         self.stamped = None
         self.data_stamped = None
         self.data_unstamped = None
@@ -54,6 +60,7 @@ class Discriminator():
             self.gray = cv2.cvtColor(self.gray, cv2.COLOR_BGR2GRAY)
 
             _, self.img_bin = cv2.threshold(self.gray, 100, 255, cv2.THRESH_OTSU)
+            self.img_bin1 = self.img_bin
             #self.img_bin = cv2.adaptiveThreshold(self.gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 151, 0)
 
             self.cut_black_bg(self.curr_frame)
@@ -82,6 +89,7 @@ class Discriminator():
 
         M = cv2.getRotationMatrix2D((cols / 2, rows / 2), -angle, 1)
         img_rot = cv2.warpAffine(img, M, (cols, rows))
+        self.img_rot_col = img_rot
         grey_rot = cv2.cvtColor(img_rot, cv2.COLOR_BGR2GRAY)
 
         #cv2.imshow("rot", img_rot)
@@ -94,12 +102,13 @@ class Discriminator():
                 if grey_rot[i, j] < 5:
                     grey_rot[i, j] = lum_mean[0]
 
-
+        self.img_grey_bg = grey_rot
         _, img_bin = cv2.threshold(grey_rot, 150, 255, cv2.THRESH_OTSU)
         #th3 = cv2.adaptiveThreshold(grey_rot, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY, 551, 2)
+        self.img_bin2 = img_bin
 
         morph_img = cv2.morphologyEx(img_bin, cv2.MORPH_CLOSE, np.ones((15, 15), np.uint8), iterations=1, borderType=cv2.MORPH_RECT)
-
+        self.img_binmorph2 = morph_img
 
         cnts, hierarchy = cv2.findContours(morph_img, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
         cv2.imshow("bin2", img_bin)
@@ -145,9 +154,16 @@ class Discriminator():
                         print("bild schlecht")
                     #print(key)
                     if key == 98:  # b taste
-                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count)+"_"+str(sub_cnt) + 'bin2'+'.jpg')) , morph_img)
-                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'cropped'+'.jpg')), img_crop)
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count)+"_"+str(sub_cnt) + 'bin1'+'.jpg')) , self.img_bin1)
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'bin1morph' + '.jpg')),self.img_binmorph1)
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'bin2' + '.jpg')),self.img_bin2)
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'bin2morph' + '.jpg')),self.img_binmorph2)
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'rot_col'+'.jpg')), self.img_rot_col)
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'grey_bg'+'.jpg')), self.img_grey_bg)
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'cropped' + '.jpg')),img_crop)
                         print("error saved")
+
+
 
                 else:
                     print("hat parent: "+str(sub_cnt))
@@ -203,9 +219,10 @@ class Discriminator():
 
     def cut_black_bg(self, img):
         #print(self.count)
-        cv2.imshow('bin1', self.img_bin)
+        cv2.imshow('bin1', self.img_bin1)
 
         morph_img = cv2.morphologyEx(self.img_bin, cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8), iterations=1, borderType=cv2.MORPH_RECT)
+        self.img_binmorph1 = morph_img
         cv2.imshow("bin_1morph", morph_img)
         #cv2.imshow("curr", self.curr_frame)
 
@@ -214,22 +231,24 @@ class Discriminator():
 
         cnts, hierarchy = cv2.findContours(morph_img, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 
-
-        for (cnt, hie) in zip(cnts, hierarchy):
+        areas = [cv2.contourArea(c) for c in cnts]
+        max_index = np.argmax(areas)
+        max_cnt = cnts[max_index]
+        #for (cnt, hie) in zip(cnts, hierarchy):
 
             #print(cv2.contourArea(cnt))
 
             #cv2.waitKey()
 
-            if cv2.contourArea(cnt) > img.size / 100:  # kleine konturen ignorieren ( > 1/4 Bildfläche)
-                #print("good size")
+        if cv2.contourArea(max_cnt) > img.size / 100:  # kleine konturen ignorieren ( > 1/4 Bildfläche)
+            #print("good size")
 
-                self.rect_min = cv2.minAreaRect(cnt)
-                self.crop_minAreaRect(self.curr_frame, self.rect_min)
+            self.rect_min = cv2.minAreaRect(max_cnt)
+            self.crop_minAreaRect(self.curr_frame, self.rect_min)
 
-            else:
-                #print("too small")
-                pass
+        else:
+            print("!!!!!!!!!!!!!!!!!!!!zu klein, kann nicht rotieren")
+            pass
 
     def read_frame(self):
         ret, self.curr_frame = self.vid.read()
