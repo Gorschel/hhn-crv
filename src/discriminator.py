@@ -101,7 +101,7 @@ class Discriminator():
             for j in range(width):
                 if grey_rot[i, j] < 5:
                     grey_rot[i, j] = lum_mean[0]
-
+                    pass
         self.img_grey_bg = grey_rot
         _, img_bin = cv2.threshold(grey_rot, 150, 255, cv2.THRESH_OTSU)
         #th3 = cv2.adaptiveThreshold(grey_rot, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY, 551, 2)
