@@ -61,7 +61,10 @@ class Discriminator():
 
             _, self.img_bin = cv2.threshold(self.gray, 100, 255, cv2.THRESH_OTSU)
             self.img_bin1 = self.img_bin
-            #self.img_bin = cv2.adaptiveThreshold(self.gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 151, 0)
+            #blurred = cv2.GaussianBlur(self.gray, (15, 15), 0)
+            #elf.img_bin1 = cv2.adaptiveThreshold(self.img_bin, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 151, 0)
+            #self.img_bin1 = cv2.morphologyEx(self.img_bin1, cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8), iterations=1, borderType=cv2.MORPH_RECT)
+
 
             self.cut_black_bg(self.curr_frame)
             #cv2.imshow('status', self.curr_frame)
@@ -73,9 +76,7 @@ class Discriminator():
 
     def crop_minAreaRect(self, img, rect):
         sub_cnt = 0
-        #print(self.count)
         cv2.imshow("start img", img)
-        #cv2.waitKey()
         if self.data_type:
             dirname = self.dir_unstamped
         else:
@@ -92,11 +93,8 @@ class Discriminator():
         self.img_rot_col = img_rot
         grey_rot = cv2.cvtColor(img_rot, cv2.COLOR_BGR2GRAY)
 
-        #cv2.imshow("rot", img_rot)
         height, width, _ = img_rot.shape
         lum_mean = cv2.mean(grey_rot)
-        #lum_mean = (lum_mean[0]+lum_mean[1]+lum_mean[2])/3
-        #print('mean lum: '+str((lum_mean[0]+lum_mean[1]+lum_mean[2])/3))
         for i in range(height):
             for j in range(width):
                 if grey_rot[i, j] < 5:
@@ -123,7 +121,7 @@ class Discriminator():
             #if True:
                 if hie[3] < 0:  # contour has no parent
                 #if True:
-                    print("gute kontur #: " + str(sub_cnt))
+                    #print("gute kontur #: " + str(sub_cnt))
                     self.rect_min = cv2.boundingRect(cnt)
                 #box = cv2.boxPoints(self.rect_min)
                 #box = np.int0(self.rect_min)
@@ -136,65 +134,46 @@ class Discriminator():
 
                     img_crop = img_rot[y:y+h, x:x+w]
                     cv2.imshow("croped", img_crop)
-
                     key = 0
-
                     key = cv2.waitKey()
                     self.count = self.count+1
                     pic_good = True
                     if key == 103: #g taste
-                        #print(str(pathlib.Path(dirname, str(self.count)+"_"+str(sub_cnt) + '.jpg')))
                         cv2.imwrite(str(pathlib.Path(dirname, str(self.count)+"_"+str(sub_cnt) + '.jpg')), img_crop)
                         print("bild gut")
                         break
 
-
-
                     if key == 115: #s taste
-                        print("bild schlecht")
-                    #print(key)
-                    if key == 98:  # b taste
-                        #cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count)+"_"+str(sub_cnt) + 'bin1'+'.jpg')) , self.img_bin1)
-                        #cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'bin1morph' + '.jpg')),self.img_binmorph1)
-                        #cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'bin2' + '.jpg')),self.img_bin2)
-                        #cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'bin2morph' + '.jpg')),self.img_binmorph2)
-                        #cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'rot_col'+'.jpg')), self.img_rot_col)
-                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'grey_bg'+'.jpg')), self.img_grey_bg)
-                        #cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'cropped' + '.jpg')),img_crop)
-                        print("error saved")
+                        #print("bild schlecht")
+                        pass
 
+                    if key == 98:  # b taste
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count)+"_"+str(sub_cnt) + 'bin1'+'.jpg')) , self.img_bin1)
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'bin1morph' + '.jpg')),self.img_binmorph1)
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'bin2' + '.jpg')),self.img_bin2)
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'bin2morph' + '.jpg')),self.img_binmorph2)
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'rot_col'+'.jpg')), self.img_rot_col)
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'grey_bg'+'.jpg')), self.img_grey_bg)
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'cropped' + '.jpg')),img_crop)
+                        print("error saved")
+                        pass
 
 
                 else:
                     print("hat parent: "+str(sub_cnt))
                     cv2.imshow("hat parent", self.curr_frame)
-                    cv2.waitKey()
+                    #cv2.waitKey()
                 sub_cnt += 1
             else:
                 print("zu klein: "+ str(sub_cnt))
                 cv2.imshow("fehler zu klein", self.curr_frame)
-                cv2.waitKey()
+                #cv2.waitKey()
                 sub_cnt += 1
 
         if not pic_good:
             print(str(self.count)+" liefert nix")
-        # rotate bounding box
-        #rect0 = (rect[0], rect[1], 0.0)
-        #box = cv2.boxPoints(rect0)
-        #draw_box = np.int0(box)
-        #pts = np.int0(cv2.transform(np.array([box]), M))[0]
-        #pts[pts < 0] = 0
-        #print(draw_box)
-        #cv2.drawContours(img_rot, [draw_box], 0, (0, 0, 255), 2)
-        #cv2.drawContours(img_rot, [pts], 0, (0, 0, 255), 2)
+            pass
 
-        #cv2.imshow("croped", img_rot)
-
-        # crop
-        #img_crop = img_rot[draw_box[1][1]:draw_box[0][1], draw_box[1][0]:draw_box[2][0]]
-
-
-        #self.curr_frame = img_crop
 
     def cropp_stamped(self):
         counter = 0
