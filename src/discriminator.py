@@ -109,8 +109,8 @@ class Discriminator():
         self.img_binmorph2 = morph_img
 
         cnts, hierarchy = cv2.findContours(morph_img, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-        cv2.imshow("bin2", img_bin)
-        cv2.imshow("gray", grey_rot)
+        #cv2.imshow("bin2", img_bin)
+        #cv2.imshow("gray", grey_rot)
         cv2.imshow("bin2_morph", morph_img)
 
         print("bild #: "+str(self.count)+", anz konturen: "+str(len(cnts)))
@@ -149,6 +149,7 @@ class Discriminator():
 
                     if key == 98:  # b taste
                         cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count)+"_"+str(sub_cnt) + 'bin1'+'.jpg')) , self.img_bin1)
+                        cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'start' + '.jpg')),img)
                         cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'bin1morph' + '.jpg')),self.img_binmorph1)
                         cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'bin2' + '.jpg')),self.img_bin2)
                         cv2.imwrite(str(pathlib.Path(self.dir_errrors, str(self.count) + "_" + str(sub_cnt) + 'bin2morph' + '.jpg')),self.img_binmorph2)
@@ -161,12 +162,12 @@ class Discriminator():
 
                 else:
                     print("hat parent: "+str(sub_cnt))
-                    cv2.imshow("hat parent", self.curr_frame)
+                    #cv2.imshow("hat parent", self.curr_frame)
                     #cv2.waitKey()
                 sub_cnt += 1
             else:
                 print("zu klein: "+ str(sub_cnt))
-                cv2.imshow("fehler zu klein", self.curr_frame)
+                #cv2.imshow("fehler zu klein", self.curr_frame)
                 #cv2.waitKey()
                 sub_cnt += 1
 
@@ -198,11 +199,11 @@ class Discriminator():
 
     def cut_black_bg(self, img):
         #print(self.count)
-        cv2.imshow('bin1', self.img_bin1)
+        #cv2.imshow('bin1', self.img_bin1)
 
         morph_img = cv2.morphologyEx(self.img_bin, cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8), iterations=1, borderType=cv2.MORPH_RECT)
         self.img_binmorph1 = morph_img
-        cv2.imshow("bin_1morph", morph_img)
+        #cv2.imshow("bin_1morph", morph_img)
         #cv2.imshow("curr", self.curr_frame)
 
         #area = self.rect_min.height
@@ -232,6 +233,7 @@ class Discriminator():
     def read_frame(self):
         ret, self.curr_frame = self.vid.read()
         self.curr_frame, self.curr_frame_original = cv2.resize(self.curr_frame, (0, 0), fx=0.15, fy=0.15)
+        self.curr_frame_original = self.curr_frame
         #cv2.imshow("read",self.curr_frame)
 
     def set_vid(self, vid):

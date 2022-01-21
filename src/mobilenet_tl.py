@@ -52,7 +52,7 @@ X = np.array(X)
 y = np.array(y)
 
 #X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0) # ist mit seed, reproduzierbar
-X_train, X_test, y_train, y_test = train_test_split(X, y)
+X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.25)
 
 X_train_scaled = X_train / 255
 X_test_scaled = X_test / 255

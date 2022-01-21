@@ -1,0 +1,719 @@
+\documentclass[11pt]{scrartcl}
+ 
+ \usepackage[verbose]{placeins}
+ \usepackage{amsmath,amssymb,amstext}
+ \usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage[ngerman]{babel}
+\usepackage[onehalfspacing]{setspace}
+\usepackage[left=3cm,right=3cm,top=3cm,bottom=3cm]{geometry}
+
+%aufzählung mit nummern
+\usepackage{enumerate}
+ 
+ %für graphik mist
+ \usepackage{float}
+% \usepackage[usenames,dvipsnames]{pstricks}
+%\usepackage{epsfig}
+% \usepackage{pst-grad} % For gradients
+% \usepackage{pst-plot} % For axes
+%\scalebox{1} % Change this value to rescale the drawing.
+
+%code einbinden
+\usepackage{listings}
+\lstset{
+breaklines=true,
+showstringspaces=false,      
+language=python
+}
+
+%bild im text
+%\usepackage{wrapfig} 
+
+%captioin in minipage
+%\usepackage{caption}
+%\usepackage{capt-of}
+
+\title{Seminararbeit}
+\author{Martin Haag}
+\date{\today{}, Heilbronn}
+
+\begin{document}
+
+\begin{onehalfspace}
+
+\begin{minipage}[t]{0.4\textwidth}
+\includegraphics[width=\textwidth]{HHN}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.4\textwidth}
+\includegraphics[width=\textwidth]{schunk}
+\end{minipage}
+\vspace{2cm}
+
+
+\begin{center}
+\begin{Huge}
+
+Seminararbeit \\
+
+\vspace{1cm}
+Programmierung einer Benutzeroberfläche \\
+für eine Schunk Roboterhand\\
+in Python mit Tkinter\\
+\vspace{3cm}
+\end{Huge}
+
+\begin{Large}
+
+
+\begin{tabular}{|c|c|}
+\hline
+ Autor& Martin Haag \\
+ \hline
+ Immatrikulationsnummer& 194980 \\
+\hline
+ Studiengang& Robotik und Automation \\
+\hline
+ betreuender Professor & Hoch?  \\
+\hline 
+  Schunkansprechpartner& Ohlheiser\\
+\hline
+\end{tabular}
+\end{Large}
+\end{center}
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Einleitung}
+In der Seminararbeit wurde eine Benutzeroberfläche zur Einrichtung, Funktionsprüfung und Erprobung von Posen und Bewegungsabläufen entworfen und erstellt. 
+Die Entwicklung der GUI für die Robohand umfasst im Prinzip zwei Hauptpunkte:
+\begin{itemize}
+\item Der erste Teil, mit dem ich mich während meiner Arbeit beschäftigt habe ist  der graphische Entwurf eines Bedienkonzeptes. Dabei Sind noch keine Funktionselemente berücksichtigt worden. Lediglich Argumente der Bedienbarkeit und der Konformität mit dem Schunk-Styleguide waren in dieser Phase Gesichtspunkte nach denen ich gearbeitet habe.
+
+\item  Der nächste Punkt der in ausgeführt wurde war natürlich die programmtechnische Implementierung. Wie der Titel schon verrät wurde hierbei zur Programmiersprache Python gegriffen, genauer, es wurde Tkinter genutzt.
+Das hat vor allem den Grund, dass für Tkinter Anwendungen keine Lizenzen benötigt werden. Das ist besonders wichtig da das Endprodukt nicht nur im Hause Schunk zum Einsatz kommen soll, sondern auch mit der Hand verkauft werden soll.
+\end{itemize}
+
+Ein dritter Punkt, der leider nicht mehr bearbeitet werden konnte ist die Ansteuerung der Hardware. Dafür wäre eine serielle Schnittstelle mit RS-485 vorgesehen gewesen. Da aber die Arbeit ohne eine vertragliche Bindung gemacht wurde, konnte die Hardware nicht den Standort verlassen, Corona hat verhindert, dass ich am Schunk Standort arbeiten kann. Die Funktionen für die Kommunikation
+sind im Code also nur angedeutet bzw. erzeugen nur eine Konsolenausgabe. 
+\newpage
+
+\section{Entwurf des Funktionsprinzipes und der Optik der GUI}
+
+
+\subsection{Bedarfsermittlung an Elementen}
+Um eine angemessene Bedienoberfläche entwerfen zu können muss man als erstes wissen, welche Knöpfe, Schieber und Anzeigen einzubauen sind.
+
+\begin{figure}[h]
+\includegraphics[width=\textwidth]{hand_weis}
+\caption{Abbildung der Hand}
+\label{fig:hand_weis}
+\end{figure}
+\vspace{1cm}
+
+Die Abbildung \ref{fig:hand_weis} zeigt, dass jeder Finger mit einem Seilzug gesteuert wird. Es ist also für jeden Finger eine Eingabemethode für die Position
+ der Drahtspule vorzusehen. Im Bild ist jedoch nicht zu sehen, dass der Ring- und der kleine Finger vom gleichen Aktor gebeugt werden. Des Weiteren kann noch ein Gelenk am Daumenansatz erkannt werden. Da die Seilzüge nur beugen und nicht strecken können wurden die Fingergelenke mit Federn vorgespannt. Dadurch müssen die Motoren zwar ein höheres Drehmoment aufbringen um die Drähte einzuziehen und die Hand kann nicht mit Kraft geöffnet werden. Diese Nachteile sind jedoch zu verkraften, weil dafür eine sehr kompakte und trotzdem starke Kinematik erreicht wird. Es gibt also nur fünf Motoren, die mit der GUI gesteuert und und überwacht werden müssen.\\\\
+ 
+Nachdem nun bekannt ist, welche Aktoren beachtet werden müssen kann nun beleuchtet werden, welche weiteren Informationen zur Absendung einer Pose an die Hand beachtet werden müssen. Das Kommando, welches zur Seriellen Kommunikation genutzt wird benötigt jedoch nicht nur die fünf Zielpositionen der Motoren, sondern noch zwei weitere Werte. Bei diesen Werten handelt es sich um Limitierungen für Geschwindigkeite und Kraft bzw. Drehmoment am Motor. Nachdem der Zweck der Benutzeroberfläche aber hauptsächlich die Einrichtung und Funktionsprüfung ist, für fortgeschrittene Anwendungen jedoch direkt die serielle Schnittstelle vorgesehen ist, hat man sich darauf geeinigt, dass keine stufenlose oder wenigstens fein abgestufte Lösung benötigt wird. Eine hohe, eine mittlere und eine niedrige Einstellung für die beiden Werte ist daher also vollkommen ausreichend.\\\\
+
+Wichtig für die Anwendung, die in meiner Seminararbeit programmiert wurde, ist auch ein kleiner Bereich, in dem Messwerte der Hand angezeigt werden können. Diese  Statuswerte der Hand, die für jeden Aktor abgefragt werden können sind folgende:
+\\\\
+
+\begin{itemize}
+ \item Drehmoment in $\frac{N}{m}$
+ \item Geschwindigkeit in $\frac{1}{s}$
+ \item Temperatur in °C
+ \item Position in Grad
+\end{itemize}
+
+Da all diese vier Werte jeweils für jeden Motor überwacht werden sollen bietet es sich hier an mit einer Tabelle zu arbeiten.\\\\
+
+Neben den bereits aufgeführten und erläuterten Elementen, die zur Bewegung und Beobachtung der Finger und ihrer Zustände nötig sind werden noch ein paar weiter Elemente benötigt. Es wird nämlich die Möglichkeit einige Parameter, die jede Hand hat anzuzeigen und zu ändern. Dabei handelt es sich um folgende :
+
+
+\begin{itemize}
+ \item Baudrate
+ \item Robot ID
+ \item Demowait
+ \item Usercalibration
+ \item Calibration
+\end{itemize}
+
+Hinzu kommt, dass noch die Befehle für 'Neustart'  und  'Zurücksetzen' verschickt werden müssen können. Außerdem gibt es noch die Variable "Version", die nur angezeigt und nicht geändert werden kann. Eine Aufrufmöglichkeit für einen FAQ-Block und eine Dokumentation ist auch noch einzuarbeiten. Eine Auswahl für den Port des Computers, der zur Kommunikation genutzt werden soll (COM-Port) ist dann die letzte Anforderung, die die GUI braucht.\\\\
+
+Zusammenfassend werden folgende Elemente benötigt:
+
+\begin{itemize}
+ \item Positionsvorgabe für jeden Motor
+ \item Kraftauswahlmöglichkeit
+ \item Geschwindigkeitsauswahlmöglichkeit
+ \item Absendemöglichkeit eines Posebefehles
+ \item Anzeige für Statuswerte der Motoren(Tabelle)
+ \item Anzeige- und Ändermöglichkeit für Parameter
+ \item Anzeige für Version, FAQ und Dokumentation
+ \item Auswahl für COM-Port
+ \item Absendemöglichkeit für 'Neustart' und 'Zurücksetzen'
+\end{itemize}
+
+
+
+\subsection{Erstellung von Bedienkonzept und Oberfläche}
+
+Nachdem der Bedarf an Anzeigen und Bedienelementen nun ermittelt wurde ist es nun an der Zeit sich ein Konzept zu Überlegen. Wie relativ schnell klar wird, kann bei Weitem nicht alles auf einer Seite untergebracht werden. Daraus folgt, dass Gruppen zusammenpassender Elemente gebildet werden müssen. Ich habe mich für folgende Aufteilung entschieden:
+
+\begin{itemize}
+\item Elemente, die zur Erprobung und Bewegung benötigt werden:
+\begin{itemize}
+ \item Positionsvorgabe für jeden Motor
+ \item Kraftauswahlmöglichkeit
+ \item Geschwindigkeitsauswahlmöglichkeit
+ \item Absendemöglichkeit eines Posebefehles
+ \item Anzeige für Statuswerte der Motoren(Tabelle)
+\end{itemize}
+
+\item Parameter und Funktionen, die nicht für die Posen direkt gebraucht werden:
+\begin{itemize}
+\item Absendemöglichkeit für 'Neustart' und 'Zurücksetzen'
+\item Anzeige- und Ändermöglichkeit für Parameter
+\end{itemize}
+
+\item Unveränderbares, Informationen und COM-Port
+\begin{itemize}
+ \item Anzeige für Version, FAQ und Dokumentation
+ \item Auswahl für COM-Port
+\end{itemize}
+\end{itemize}
+
+Bei meiner Einteilung macht die erste Gruppe den größten Teil aus. Die Bewegungskoordination ist schließlich die Primärfunktion der ganzen Anwendung. Es macht also Sinn, um die Primärfunktion nicht zu behindern alle diese Anwendungen auf eine Seite anzuordnen. Eine zweite Seite wird von der zweiten Gruppe ganz gut ausgefüllt. Auch wenn es in der Aufzählung nur zwei Punkte sind ist es vernünftig der Parameterlist genug Platz einzuräumen.
+Als letztes bleibt noch die dritte Gruppe übrig. Da Dokumentation und FAQ jeweils ganze Seiten füllen könnten ist es nicht gut, diese Seiten in der gleiche Auswahl wie die anderen beiden anzubieten. Diese Punkte habe ich deshalb in die Menüleiste über den Seiten gepackt. Nachdem nun alle diese Überlegungen angestellt wurden, ist der nächste Schritt ein erster Entwurf.
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{ap_bunt}
+\caption{früher Entwurf der Hauptseite}
+\label{fig:ap_bunt}
+\end{figure}
+\vspace{1cm}
+
+Wie in der Abbildung \ref{fig:ap_bunt} zu sehen ist, wurden beim ersten Konzeptentwurf alle Eingabeelemente auf die linke Seite gepackt, die Absendefunktion wurde mit dem blauen 'Send' Knopf möglichst nahe an den anderen Bedienmöglichkeiten platziert. Für die Einstellung der Sollwerte der Gelenke waren Plus und Minus Tasten vorgesenhen. Um die einzelnen Eingabefenster den passenden Gelenken zuordnen zu können hat man sich hier eine Farbcodierung überlegt. Diese hat den Vorteil, dass auch ohne Sprachverständniss eine Bedienung möglich ist.
+Der große Block unter der Handillustration dient zur Hervorhebung der wichtigsten beiden Werte für ein einzelnes Gelenk, dass mit den bunten 'Data' Knöpfen ausgewählt werden kann. Auf der rechten Seite ist die Tabelle mit allen Messwerten von allen Gelenken zu sehen. Auch hier wurde mit der Farbcodierung für eine gute Übersicht garantiert. Das letzte Element ist der blaue 'Configuration' Knopf. Dieser führt keinen Befehl aus, sondern war für den Wechsel auf die Parameter seine gedacht.
+
+ 
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{cp_bunt}
+\caption{früher Entwurf der Parameterseite}
+\label{fig:cp_bunt}
+\end{figure}
+\vspace{1cm}
+
+In Abbildung \ref{fig:cp_bunt} ist der Erstentwurf der Parameterseite zu sehen.
+Den größten Teil dieser Seite macht die Tabelle aus. Diese enthält die alten Werte und die Werte, die gesetzt werden sollen. Rechts oben sind drei, im gleichen Hellblauton gestalltete, Informatinsblöcke. Diese enthalten die nicht änderbaren Werte aus der dritten Gruppe der Vorüberlegung. Unter der Tabelle sind alle Knöpfe in dunkelblauer Farbe angeordnet. Die Funktion dieser sollte durch die Beschriftung selbsterklärend sein. Bei der Gestaltung wurde sehr viel Wert auf die Farbgebung gelegt. Alle Knöpfe, die dunkelblau sind lösen sofort eine Kommunikation mit der Hand aus, die nächst dunklere Stufe zeigt Felder an, die Informationen enthalten aber nicht geändert werden können und die ganz hellen können geändert werden oder ändern sich.\\\\
+
+Insgesamt fällt bei diesen Entwürfen auf, dass alles noch sehr bunt ist. Das ist jedoch nicht dem Schunk Styleguide konform, der festlegt nach welchen optischen Standarts alle Oberflächen und Ähnliches sein muss. Außerdem ist die dritte Gruppe, die nachher in der Menüleiste über der Anwendung versteckt wurde noch auf die Seiten aufgeteilt. Auch andere Kleinigkeiten wie die Parameter etc. sind hier noch anders. Das ist darauf zurückzuführen, dass sich während der Erstellung der Arbeit noch kleine Änderungen ergeben haben.  
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{ap_gut}
+\caption{fortgeschrittener Entwurf der Hauptseite}
+\label{fig:ap_gut}
+\end{figure}
+\vspace{1cm}
+
+Abbildung \ref{fig:ap_gut} zeigt schon einen späteren Entwicklungsstand. Der erste Unterschied zum Vorgänger ist hier der Wechsel von den Eingabefenstern auf die Schiebereglern. Diese sollen es einfacher machen größere Änderungen einzugeben ohne die Tastatur zu Hilfe nehmen zu müssen. Die nächste Neuerung ist, dass man sich von den wilden Farben distanziert hat. Dafür musste man leider in Kauf nehmen, dass die Werte und Schieberegler den Finger und Gelenken schwerer zugeordnet werden können. Neben der Anordnung der Elemente hat sich jedoch nichts Wesentliches mehr geändert.
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{cp_gut}
+\caption{fortgeschrittener   Entwurf der Parameterseite}
+\label{fig:cp_gut}
+\end{figure}
+\vspace{1cm}
+
+Auf der Konfigurierungsseite hat sich noch weniger geändert. Abgesehen von der Anordnung der Knöpfe und Boxen hat sich nichts nennenswertes geändert.
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{ap_fertig}
+\caption{finaler Entwurf der Hauptseite}
+\label{fig:ap_fertig}
+\end{figure}
+\vspace{1cm}
+
+In Abbildung \ref{fig:ap_fertig} ist zu sehen, wie die Bedienseite in der fertigen Seite letztendlich aussieht. Die Schieberegeler haben jetzt alle ein einheitliche Farbe und für das Rendering der Hardware wird durch mehr Platz genutzt. Der Knopf zur Absendung der Wunschpose hat auch ein neues Symbol verpasst bekommen. Um die Verwirrung, welcher Regler zu welchem Gelenk gehört zu verringern wurden bei der finalen Lösung die hellblauen Linien eingeführt. Diese passen auch viel besser zum Schunk Style. Ganz neu ist hier auch die Einstellung für die gewünschte Kraft- und Geschwindigkeitsstufe. Die Tabelle hat in dieser Version wieder eine sehr ähnliche Färbung wie die in der ersten Version. Was ganz von der Seite verschwunden ist, ist der Knopf zum Wechsel auf die Parameterseite. Diese Option ist nun in die Menüzeile über dem Fenster integriert worden. Es wurde auch eine Auswahlbox für das Aktualisieren der Tabelle der Statuswerte hinzugefügt.
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{cp_fertig}
+\caption{finaler Entwurf der Parameterseite}
+\label{fig:cp_fertig}
+\end{figure}
+\vspace{1cm}
+
+Auch auf der zweiten Seite ist etwas verschwunden, die Infos zu Modelnummer etc. Diese sind natürlich auch im Menü untergebracht. Neben der Tabelle mit dem dazugehörigen 'update settings' Knopf für die Parameter und den Befehlsknöpfen für die Funktionen Neustart und Zurücksetzen ist also nichts mehr weiter auf der Seite.
+
+
+\begin{figure}[H]
+\begin{minipage}[t]{0.3\textwidth}
+\includegraphics[width=\textwidth]{pages}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.3\textwidth}
+\includegraphics[width=\textwidth]{help}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.3\textwidth}
+\includegraphics[width=\textwidth]{com}
+\end{minipage}
+\caption{Inhalt der Menüleiste}
+\label{fig:menu}
+\end{figure}
+\vspace{1cm}
+
+Die Abbildung \ref{fig:menu} zeigt den ganzen Umfang des Menüs. Das erste der drei Dropdown Menüs ist zum Wechsel der Seite . Das zweite enthält alle nicht änderbaren Informationen. Wird ein Punkt ausgewählt, so wird ein dazugehöriges Fenster mit dazugehörigem Inhalt geöffnet. Das dritte birgt die Wahl des COM Portes. Durch die Einführung des Menüs wird nicht nur mehr Platz und Übersicht auf den anderen Seiten, es können die Punkte auch von beiden Seiten aus genutzt werden.
+
+\subsection{programmtechnische Umsetzung }
+Das Projekt wurde in der Pythonversion 3.7 verwirklicht.
+
+\subsubsection{Tkinter Grundlagen}
+
+Um die Tkiner zu nutzen muss folgendes getan werden:
+\begin{enumerate}
+\item importieren der Bibliothek
+\item anlegen eines Objektes vom Typ 'Tk'
+\item ausführen der Methode 'mainloop'
+\end{enumerate}
+
+Das Ausführen der Methode 'mainloop' wird ein Fenster geöffnet und offen gehalten. Um der Anwendung nun Leben einzuhauchen stellt Tkinter sogenannte Widgets zur Verfügung. Jedes Element auf der GUI ist ein Widget. Diese sind zum Beispiel:
+
+
+\begin{itemize}
+\item Label -> Dieses erstellt ein Ausgabefenster
+\item Entry -> Dieses erstellt ein Eingabefenster 
+\item Scale -> Dieses erstellt einen Schieberegler
+
+\end{itemize}
+
+Natürlich gibt es noch viel mehr Widgets, diese alle aufzuzählen führt jedoch zu weit. Um sie zu nutzen muss einfach ein Objekt des jeweiligen Typs erstellt werden. Wenn die gewünschten Elemente dann angelegt wurden müssen sie auch im Fenster platziert werden. Dazu gibt es 3 Möglichkeiten:
+
+\begin{enumerate}
+\item Die erste ist das Verfahren mit der 'pack' Methode. Jedes Widget hat diese Methode. Diese ist sehr primitiv und es kann nur mit einfachen Optionen zur Steuerung der Position, in der das Widget erschient, beeinflusst werden. Der Rest liegt dann in der Willkür des Pythoninterpreters.
+\item Die zweite ist  das Verfahren mit der 'grid' Methode. Dabei wird die Position des Widgets schon genauer festgelegt. Beim Ausführen gibt es zwei Pflichtangaben, ohne die die Methode nicht ausführbar ist. Diese sind die Zeile und die Spalte, in die das Widget auf der Seite erscheinen soll. Mit dieser Methode werden die Elemente also wie in eine Tabelle auf die Benutzeroberfläche sortiert. Wenn jedoch sehr große Elemente auftreten sind alle Felder in der Zeile und in der Spalte dieses Widgets auch sehr groß und es entstehen Freiräume. Trotzdem ist diese Methode schon für deutlich größere Projekte geeignet.
+\item Die dritte Methode ist die, die in der Seminararbeit verwendet wurde. Es ist die Möglichkeit mit der 'place' Methode. Bei dieser Methode muss nicht die Stelle in einer Tabelle angegeben werden sondern die genaue gewünschte Position im Fenster. Dabei kann eine Angabe in Prozenten und und eine Angabe in Pixeln verwendet werden um die x- um die y- Koordinate anzugeben. Dieses Vorgehen erlaubt zwar deutlich mehr Kontrolle, jedoch hat sie auch Nachteile. Es kann zu Überlappungen der Widgets kommen, selbst das ein Element neben der GUI platziert wird ist nicht ausgeschlossen. Es ist also aufwändiger und verlangt mehr Vorsicht mit dieser Methode zu arbeiten, wenn jedoch optische Vorgaben erreicht werden sollen ist sie fast nicht zu vermeiden.
+\end{enumerate}
+
+
+
+
+\subsubsection{Das Widget 'Frame' und die Nutzung im Projekt}
+Das wohl wichtigste Widget in diesem Projekt ist wahrscheinlich das 'Frame' Widget. Dieses erlaubt es, mehrere Seiten für das gleiche 'Tk' Objekt anzulegen. Das 'Frame' Widget hat außerdem die 'tkraise' Methode. Diese befördert die Seite, das 'Frame' Widget, dessen Methode ausgeführt wurde in den Vordergrund. Wenn nun jedes die komplette Ausdehnung der Anwendung umfasst kann so ein Seitenwechsel realisiert werden. Das soll in einem sehr knappen Codestück dargestellt werden:
+
+\begin{figure}[H]
+\begin{lstlisting}[basicstyle=\small,numbers=left, stepnumber=1]
+import tkinter as tk
+
+root =tk.Tk()
+root.geometry('300x300+300+300')
+
+f1=tk.Frame(root)
+label1=tk.Label(f1, text="Seite 1").pack()
+button1=tk.Button(f1,command=lambda :f2.tkraise()).pack()
+
+f2=tk.Frame(root)
+label2=tk.Label(f2, text="Seite 2").pack()
+button1=tk.Button(f2,command=lambda :f1.tkraise()).pack()
+
+for f in (f1,f2):
+    f.grid(row=0,column=0)
+f1.tkraise()
+
+root.mainloop()
+	
+\end{lstlisting}
+\caption{Beispiel zum Seitenwechsel}
+\label{code:tkraise}
+\end{figure}
+
+Mit der ersten Zeile wird die Bibliothek für die GUI Programmierung eingebunden. In der dritten wird das Objekt, dessen 'mainloop' Methode letztendlich die Anwendung startet erstellt. Die vierte Zeile passt nur die Größe des Fensters an. In der sechsten Zeile wird der erste 'Frame' angelegt, das Objekt 'f1' vom Typ 'Frame' aus der Bibliothek tk. In Zeile sieben wird dann ein Knopf angelegt. Ein Objekt mit dem Namen 'label1' vom Typ Label. Beim Anlegen wird mit dem ersten Wert in der Klammer (f1) die Seite, auf der das Widget erscheinen soll angegeben. Hier wird die 'pack' Methode gewählt um die Position von 'label1' auf 'f1' festzulegen.
+In der Zeile acht wird nach dem Schema, nachdem das 'Label' Objekt erstellt wurde auch ein 'Button' Objekt angelegt. Dem 'command' Attribut wird dabei eine Funktion , die beim Drücken des Knopfes ausgeführt wird zugewiesen. Diese Funktion löst die 'tkraise' Methode der zweiten Seite 'f2' aus. In den Zeilen zehn bis zwölf wird die zweite Seite mit ihren dazugehörigen Elementen erstellt. In den Zeilen 14 und 15 werden mit Hilfe einer kurzen Schleife die 'grid' Funktionen der 'Frame' Objekte ausgeführt. Wie alle anderen Widgets müssen auch diese auf die Seite plaziert werden. In der Zeile 16 wird dann die Seite 'f1' in den Vordergrund befördert. Zuletzt wird in Zeile 18 die Anwendung gestartet. Das Ganze Programm besteht also nur aus zwei unterschiedlich markierten Seiten, wobei jeweils von einer die andere aufgerufen werden kann. Dieses einfache Stück Code kann jedoch helfen besser zu verstehen, wie die ganze Anwendung funktioniert.
+
+\subsubsection{Vererbung in Python}
+Vererbung ist ein Prinzip, dass nicht nur in Python existiert sondern auch in anderen objektorientierten Sprachen, wie zum Beispiel in c++. Dabei werden die Klassen, die bereits vorhanden sind, um weitere Attribute und Methoden erweitert.  Das ist auch ein Prinzip, dass auch in dieser Arbeit ausgenutzt wird. Die Syntax ist folgende: 
+
+\begin{figure}[H]
+\begin{lstlisting}[basicstyle=\small,numbers=left, stepnumber=1]
+class NeueKlasse(Basis1, Basis2):
+
+    def __init__(Basis1Variable1, Basis1Variable2, Basis2Variable, NeueVariable):
+
+        Basis1.__init__(Basis1Variable1, Basis1Variable2)
+        Basis2.__init__(Basis2Variable)
+        self.Variable = NeueVariable
+\end{lstlisting}
+\caption{Beispiel zur Vererbung}
+\label{code:vererbung}
+\end{figure}
+
+ Die Objektklassen 'NeueKlasse' hat in diesem Beispiel zwei Basisklassen, die an sie vererben, 'Basis1' und 'Basis2'. Die Angaben, die für beide Basisklassen zur Initialisierung übergeben werden müssen, müssen natürlich auch hier angegeben werden. Die Angaben werden dann in der '\_\_init\_\_' Funktion der neuen Klasse auf die '\_\_init\_\_' Funktionen der Basisklassen verteilt. Im Beispiel wird auch ein ganz neuer Parameter, den keine der alten Klassen benötigt angefordert. Das ist natürlich auch möglich und wird wie in jeder normalen Klassendefinition behandelt. Dieses Prinzip wird im Projekt nicht nur auf das 'Frame' Objekt, sondern auch noch auf das 'Tk' Objekt angewendet. Die Idee dabei ist folgende:
+
+\begin{figure}[H]
+\begin{lstlisting}[basicstyle=\small,numbers=left,stepnumber=1]
+import tkinter as tk
+
+class DemoSeite(tk.Frame):
+    def __init__(self,FrameVar):
+        tk.Frame.__init__(self,FrameVar)
+        label = tk.Label(self, text="Demo").pack()
+        button =tk.Button(self, text="ausgeben",command=lambda :self.ausg()).pack()
+
+    def ausg(self):
+        print("Hello World")
+
+root=tk.Tk()
+Seite=DemoSeite(root)
+Seite.grid(column=0, row=0)
+
+root.mainloop()
+
+
+
+\end{lstlisting}
+\caption{Vererbung bei 'Frame'}
+\label{code:new_frame}
+\end{figure}
+
+In den Zeilen drei bis sieben wird die neue Klasse 'DemoSeite' als Abkömmling von 'Frame' erstellt. Diese hat zusätzlich zu allem was 'Frame' aufweist noch einige vordefinierte Elemente in der Initialisierungsfunktion vorgefertigt. In Zeile sechs wird ein 'Label' Widget direkt auf das Objekt definiert. Mit dem Schlüsselwort 'self'  wird direkt auf das Objekt der Klasse 'DemoSeite' gezeigt.
+Ein zweites Elemtent wird vom Typ 'Button' erzeugt. Die Funktion, die dieser Knopf ausführt ist in Zeile neun und zehn definiert. In Zeile zwölf wird ein 'Tk' Objekt angelegt, wie bereits im vorher gegangenem Beispiel der Abbildung \ref{code:tkraise}. in Zeile 13 wird jedoch kein 'Frame' Objekt initialisiert, sondern eins der neuen Klasse. Dieses enthält bereits Elemente. In diesem Stil sind in der Arbeit auch die Seiten erstellt worden. Dabei sind jedoch zwei unterschiedliche Weiterentwicklungen definiert worden, die wie im letzten Beispiel mit 'tkraise' in den Fokus gerückt werden können.
+
+\begin{lstlisting}[basicstyle=\small] [caption={}, captionpos=b}
+if splitPairz=="position_z" and splitPairx=="nixx" and splitPairy=="nixy":
+						splitPair[0]="|position_z"
+						splitPairx="nixz"
+
+					if splitPairy=="position_y" and splitPairx=="nixx":
+						splitPair[0]="|position_y"
+						splitPairy="nixy"
+
+					if splitPairx=="position_x" and splitskip==8:
+						splitPair[0]="|position_x"
+						splitPairx="nixx"
+
+					if splitPair[0]=="pose":
+						splitPairx="position_x"
+						splitPairy="position_y"
+						splitPairz="position_z"
+						splitskip=10
+
+					splitskip-=1
+					
+\end{lstlisting}
+
+Nachdem nun alle nötigen Informationen gesammelt und aufbereitet sind, kann die Datei geschrieben werden. Dabei wird die Methode 'writerow' verwendet, die aus der csv Bibliothek, die am Anfang importiert wurde genutzt. Mit ihrer Hilfe wird die Liste 'values' als eine Zeile in die Zieldatei geschrieben. Die Liste 'values' wiederum besteht aus allen Messwerten, die mit dem gleichen Zeitstempel und damit zeitgleich aufgenommen wurden.\\
+
+\begin{lstlisting}[basicstyle=\small][caption={},captionpos=b]
+for i in range(len(splitPair)):	#should be 0 to 1
+					splitPair[i] = string.strip(splitPair[i])
+				instantaneousListOfData.append(splitPair)
+
+			if firstIteration:	# header
+				headers = ["rosbagTimestamp"]	#first column header
+				for pair in instantaneousListOfData:
+					pair[0]=fntopic+"-"+pair[0]
+					headers.append(pair[0])
+				filewriter.writerow(headers)
+				firstIteration = False
+
+			values = [str(t)]	#first column will have rosbag timestamp
+			for pair in instantaneousListOfData:
+				values.append(pair[1])
+			filewriter.writerow(values)
+			
+\end{lstlisting}
+
+Nach schließen der Datei ist der erste Teil des Programmes abgeschlossen(.bag -> .csv). Direkt im Anschluss ist die Fortsetzung(.csv -> .ascii). Hierbei ist der Start sehr ähnlich. Wie auch schon eine Liste mit .bag Daten erstellt wurde, wird hier eine Liste mit .csv Daten erstellt, die während des Ablaufs des Programmes Element für Element abgearbeitet wird.\\
+Dazu werden als erstes wieder Verzeichnisse und Ordner angelegt. Jeweils eine .ascii Datei pro .csv Datei, also eine pro Topic und viele pro .bag Datei, da aus einer .bag Datei bereits viele .csv Dateien entstanden sind. Das Einlesen der Informationen geschieht wieder über Nutzung der csv-Bibliothek, die bereits im letzten Teil eine Rolle gespielt hat.\\
+Mit dem Daten werden als nächstes einige Überprüfungen durchgeführt.
+Die erste überprüft, ob alle Zeilen gleich viele Elemente enthalten. Dass das nicht der Fall ist kann eigentlich nicht sein und es muss sich um eine fehlerhafte Datei handeln, die nicht weiter bearbeitet wird.\\
+
+
+\begin{lstlisting}[basicstyle=\small][caption={},captionpos=b]
+for row in csv_reader:
+		topics=len(row)
+		if tru:
+			topold =topics
+			tru=0
+		if topics !=topold:
+			spaltdif=1
+			topold=topics
+			
+\end{lstlisting}
+
+Die nächsten Operationen sind eine der komplexesten Teile, die im Code beinhaltet sind. Ihr Zweck ist es leere Spalten und andere invalide Inhalte heraus zu filtern. Das Vorgehen ist folgendermaßen: Je nach Inhalt wird einer Liste eine Nummer angehängt. Der Wert der Nummer sagt etwas über den Inhalt der zugehörigen Zelle der Tabelle und die Position in der Liste über die Position in der Liste aus. Welche Wert angehängt werden wird so bestimmt:
+
+ \begin{itemize}
+
+ \item Als erstes wird der Versuch unternommen, den Inhalt in eine Fließkommazahl zu konvertieren. Wenn das gelingt wird eine '0' angehänt.
+\item Da die einzigen zugelassenen Datentypen Fließkommazahlen (f8)
+ sind könnte man denken, dass die Aufgabe hier gelöst ist. Jedoch ist ja bereits bekannt, dass ein Topic aus vielen Messwerten bestehen kann. Aber auch diese sind oft aus vielen Teilen. In einer Spalte kann also auch ein Vektor sein, der erkannt werden muss. Dazu wird eine Funktion, die einen String an einem vorgegebenem Zeichen teilt, benutzt. Die csv Funktion in Kombination mit der rosbag Funktion sorgt dafür, dass Vektoren in Python so eingelesen werden: [Zahl,Zahl,....,Zahl]. Das Zeichen zum teilen ist also ','. Dann müssen nur noch die eckigen Klammern entfernt werden. Damit ist der Vektor in die einzelzahlen zerlegt und wird Zahlt für Zahl überprüft, ob er konvertierbar ist. Gelingt das, wird der Liste wieder eine '0' angehängt.
+ \item Sollte es nicht funktionieren, eine '1' statt einer '0'.
+ \end{itemize}
+
+\begin{lstlisting}[basicstyle=\small][caption={},captionpos=b]
+if data =="":
+		datainh.append(1)
+	else:	
+		try:
+			ifstr=float(data)
+			datainh.append(0)
+		except:
+			try:
+				spldata=data.split(",")
+				spldata[0]=spldata[0][1:]
+				spldata[len(spldata)-1]=str(spldata[len(spldata)-1][:len(spldata[len(spldata	)-1])-1])
+				for zahl in spldata:
+					ifstr=float(zahl)
+				datainh.append(0)
+			except:		
+				datainh.append(1)
+				
+\end{lstlisting}
+
+Mit der Information, welche Spalten nutzlos sind und damit nicht in der .ascii Datei auftauchen wird berechnet, wie breit die Tabelle wird, also wie viele Spalten sie haben wird. Danach beginnt die Ausgabe, die sich in diesem Teil des Programmes als etwa schwieriger als im Teil, in dem die Ausgabe mit der csv Funktion erfolgt. Es müssen also alle Leerzeichen, Tabulatoren usw. einzeln geschrieben werden. Begonnen wird dabei wie zu erwarten war mit dem Header.
+
+\begin{lstlisting}[basicstyle=\small][caption={},captionpos=b]
+header="ETASAsciiItemFile	record	CrLf	Tab\r\nsampleCount	"+str(count)+"        \r\n"
+f.write("%s"%header)
+...
+...
+...
+typundeinh="f8	"*(spalten-1)+"f8"+"\r\n"+'"s"	'+'"x"	'*(spalten-2)+'"x"'+"\r\n"
+f.write("%s"%typundeinh)
+
+\end{lstlisting}
+
+Nach dem Header werden alle Elemente einzelt geschrieben. Dabei wird nicht wie beim schreiben der .csv Datei mit der csv Funktion aus einer Liste eine ganze Zeile auf einmalgeschrieben, sondern alle Zellen der Tabelle einzelt von links oben nach rechts unten. Zur Hilfe wird dazu ein Zähler für die Zeile und eine für das Element eingeführt. Mit der Modulo Funktion kann so ganz schnell die Spalte ermittelt werden.
+
+\begin{lstlisting}[basicstyle=\small][caption={},captionpos=b]
+for zeile in alles:
+		 zeilennr+=1
+		 for data in zeile:
+				zler=zler+1
+				
+\end{lstlisting}
+
+Als erstes in jeder Zeile muss die Zeit seit dem Starten der Messung stehen.
+Hier wird die bereits genannte Problematik, des Unterschiedes zwischen Zeitdifferenz und Unix Zeitstempel wieder present. \\
+Um diese zu meistern muss der erste Zeitstempel als Referenz gespeichert werden. Mit Hilfe der Zähler ist dieser einfach zu identifizieren. 
+Daraufhin wird der erste Zeitwert der .ascii Datei auf 0.0000001 gesetzt.
+Alle weiteren ersten Werte der Zeilen ergeben sich dann aus der Differenz dividiert durch 1000000000. Die Division muss sein, um die Zehnerpotenz so anzupassen, wie MDA es erwartet.
+
+\begin{lstlisting}[basicstyle=\small][caption={},captionpos=b]
+if zler%topics==0:
+						
+		zlerts=zlerts+1
+		if zlerts==1:
+			data="time"
+		if zlerts>1:
+			if zlerts==2:
+				t0=float(data)
+			ts=float(data)
+			tdif=(ts-t0)/1000000000
+			data=str(tdif)
+						
+			if zlerts==2:
+					data="0.0000001"
+					
+\end{lstlisting}
+
+Mit Anpassung der Zeitinformation kann nun begonnen werden, in die Datei zu schreiben. Dabei muss nun genau die benötigte Formatierung eingehalten werden(siehe Abbildung  \ref{fig:ascii_form_dat}). Bewerkstelligt wird das indem mit der bekannten Tabellenbreite und einem Zähler festgestellt wird ob die Zahl die geschrieben wird am rechten Rand der Tabelle ist oder nicht. Zwischen den Zahlen in der Zeile wird mit einem Tabulator getrennt, nach dem letzten Eintrag einer Zeile darf jedoch kein Tabulator sein. Da ist ein Zeilenunmbruch vorgegeben.
+
+\begin{lstlisting}[basicstyle=\small][caption={},captionpos=b]
+if datainh[(zler)%topics] ==0 :
+	if zler%topics ==topics-1:
+		f.write("%s"%data)
+		f.write("\r\n" )
+	else:
+		f.write("%s	" % data)
+						
+\end{lstlisting}
+
+\subsubsection{Dateimanagement }
+
+Abgesehen von den Stringoperationen, Textformatierungen und allem anderem was bereits genannt wurde, wird auch ein Dateimanagement betrieben. Da es sehr unübersichtlich werden würde, wenn alle .csv Dateien und alle .bag Dateien samt den .ascii Dateien und dem bag2ascii.py Code in einem Ordner zu finden wären ist das unerlässlich. Ich habe dazu die Bibliotheken 'os' und 'shutil' zur Hilfe genommen. Mit 'os' Befehlen kann das Verzeichnis gespeichert und gewechselt werden. Auch können damit neue Ordner eingefügt werden. Die 'shutil' Befehle dienen dagegen zum kopieren und verschieben von Dateien. Mit 'open(Dateiname, 'w+')' wird eine Datei mit dem Namen 'Dateiname' angelegt und zum schreiben geöffnet.Im folgenden eine chronologische Auflistung der Befehle zum Dateimanagement mit Kommentaren, die kurz erwähnen welche Befehle welchen Effekt hervorrufen.
+
+\begin{enumerate}
+\item os.listdir	Erstellen einer Liste aller .bag Dateien\\\\
+Beginn der Schleife, die alle .bag Dateien einzeln bearbeitet
+\item os.makedirs(csv Ordner)	 Erstellen eines Ordners, in dem alle .csv Dateien landen\\\\
+Beginn der Schleife, die alle Topics alle einzeln bearbeitet
+\item open(filename, 'w+')	 Erstellen einer .csv Datei pro Topic\\
+Ende der Schleife der Topics\\
+\item os.makedirs(ascii Ordner)	  Erstellen eines Ordners, in dem alle .ascii Dateien landen\\
+\item os.chdir(csv Ordner)	 Das Verzeichnis auf den csv Ordner ändern
+\item os.listdir	Erstellen einer Liste aller .csv Dateien
+\item os.chdir(Startordner)	 Das Verzeichnis auf den Ornder, der das Skript usw. enthält ändern\\\\
+Beginn der Schleife, die alle .csv Dateien einzeln bearbeitet
+\item os.chdir(csvfolder)	 Das Verzeichnis auf den csv Ordner ändern
+\item  open(filename, 'w+')	 Erstellen einer .ascii Datei pro .csv Datei
+\item shutil.move(.ascii Datei, ascii Ordner)	 Verschieben der .ascii Datei in passenden Ordner
+\item os.chdir(Startordner)	 Das Verzeichnis auf den Ornder, der das Skript usw. enthält ändern\\
+Ende der Schleife der .csv Dateien\\
+Ende der Schleife der .bag Dateien
+
+\end{enumerate}
+
+
+\subsection{ROS/Turtlesim}
+
+Ein weiterer nicht unerheblicher Anteil meiner Zeit im praktischen Studiensemester war mit Selbststudium zur Schulung meiner Programmierfähigkeiten und meiner Kenntnisse in ROS gefüllt. Zu diesem Zweck hat es sich angeboten, einige ROS Knoten in Python zu schreiben und diese in eine graphische Benutzerschnittstelle zu implementieren. Das Ziel, das ich mir stellte, war es eine Simulation einer Schildkröte die zu Übungszwecken in ROS relativ bekannt ist, mit reichlich Funktionen auszustatten.\\\\
+Die Simulation besteht aus einigen Knoten, hälte einige Services bereit und liest aus einigen Topics also ist sie ideal zum üben. Die Knoten, die gestartet werden müssen sind:\\\\
+-/turtlesim  -> ein Fenster, dass eine Schildkröte auf standartmäßig blauem Grund darstellt
+
+%\begin{figure}[h]
+%\includegraphics[height=6.5cm]{turtlesim.png} 
+%\caption{das Turtlesim Fenster}
+%\label{fig:turtlesim fenster}
+%\end{figure}
+
+-/teleop-turtle  -> ein Knoten, der das Drücken der Pfeiltasten auf der Tastatur detektiert und dann auf ein Topic veröffentlicht. Dieses liest wiederrum der /turtlesim Knoten und animiert eine Bewegung der Schildkröte entsprechend der Kommandos.
+
+\subsubsection{Skripte und resultierende Funktionen}
+
+\begin{itemize}
+\item Die erste Funktion, die implementiert wurde ist die Funktion, die die Schildkröte an eine Bestimmte Positon bewegt. Das Skript dazu ruft einen Knoten auf den Plan, der ein Topic aboniert, auf dem mitgeteilt wird auf welcher Poition die Schildkröte sich gerade befindet. Diese Nachrichten geben x- y- Koordinate und die Orientierung der Schildkröte an. Dieser Knoten aboniert auch ein Topic, auf dem die Zielposition mitgeteilt wird. Aus der aktuellen Geometrie, die durch Ziel und Position im Koordinatensystem festgelegt ist, wird der nächste Befehl für die Schildkröte berechnet und auf das gleiche Topic, das auch der /teleop-turtle Knoten nutzt geschrieben. So wird auch der mathematisch generierte Befehl genau wie ein manuel erstellter ausgeführt.  
+\item Eine weiterer weniger komplexer Knoten teilt nur eine Zeit mit. Der Knoten orientiert sich an keiner Uhr sondern zählt nur. Dadurch, dass die Ausgabefrequenz festgelegt wurde, kann durch die Differenzbildung von Zeitnachrichten ein Zeitraum ermittelt werden. 
+\item Ein anders Skript überwacht die x-Position der Schildkröte und schreibt bei unter- oder überschreiten von bestimmten Grenzwerten bestimmte Nachrichten auf bestimmt Topics. In Kombination mit dem Zeitzählerknoten kann damit eine Stopuhr realisiert werden. In diesem Fall wurde sie auf Anzeigen für Streckenrekord, aktuelle Zeit und Zeit des letzten Durchganges erweitert.
+\end{itemize}
+
+
+\subsubsection{GUI-graphical user inerface}
+
+Wie alle anderen Programme auch habe ich auch die GUI in der Sprache Python geschrieben. Die GUI wurde mit TKinter, einer Bibliothek die entsprechende Befehle zur Verfügung stellt, geschrieben. Mit dem GUI sind neben den Funktionen, die oben schon beschrieben wurden auch noch weitere Funktionen möglich. Neben den Funktionen, die Topics als Mittel der Kommunikation nutzen ist mit der GUI auch die ein oder andere Aktion, die Services aufruft verfügbar. Jedoch werden alle Services vom Knoten /turtlesim gestellt und das GUI ist nur der Client.
+\newpage
+%\begin{figure}
+%\includegraphics[height=23cm]{stopgui.png} 
+%\caption{das GUI mit allen Funktionen}
+%\label{fig:gui}
+%\end{figure}
+\newpage
+
+Dieses GUI wirkt, als ob sie mit all ihren Knöpfen, Fenstern und Reglern eine Vielzahl an Funktionen birgt. Tut sie auch. 
+Diese Funktionen sind folgende:
+
+\begin{itemize}
+\item Die alte Funktion zur Bewegung der Schildkröte (vorher war ein Knoten, mit dem die Pfeiltasten nutzbar waren nötig) wurde erstetzt. Die Bewegung der Schildkröte setzt sich aus Translation und Rotation zusammen. Beide Bewegungsanteile können einzeln mit einem Schieberegler eingestellt und während der Bewegung wie mit einem Gashebel und einem Lenkrad umgestellt werden. Gestartet wird die Bewegung mit dem 'losfahren' Knopf, gestopt mit dem 'anhalten' Knopf.
+\item Mit der Bewegungsmöglichkeit kann jetzt auch die bereits erklärte Stopuhr genutzt werden. Die Anzeigen dazu sind links oben anbegracht. Da sowohl bei 'Zeit momentan' als auch bei 'Zeit vorher' der gleiche Wert steht muss die Schildkröte gerade eben durchs Ziel gekommen sein. 
+\item Mit dem Knopf 'ziel ->los' wird ein Befehl an den Bewegungsknoten, der  bereichts auch schon aufgeführt wurde, geschickt. Die Zielposition kann mit den Fenstern 'x' und 'y' eingestellt werden. Die Pfadregelung übernimmt dabei der anderer Bewegungsknoten.
+\item Ein weiteres Feature ist die 'trick machen' Funktion. Dabei wird ein mit dem Dropdown Menü ausgewählter Trick ausgeführt. Dabei gibt es zwei unterschiedliche Arten:
+\begin{itemize}
+\item Die erste Art ist ein Trick, bei dem sich die Schildkröte unabhänig von ihrer Startposition bewegt und eine vorgeschriebene Bahn abfährt. Das gelingt indem ein Speicher mit einzelnen Wegpunkten gefüllt wird und diese einzeln nacheinander angefahren werden. Die weise Spur ergibt dann eine Bekannte Form.
+\item Die zweite Art von Trick ist eine Bewegung, die sich an der aktuellen Position orientiert. Hier wird keine Liste von Zielpunkten, sondern eine Liste von Bewegungen über Zeiträume vorgegeben. Das gewünste Bild entsteht dann direkt am Punkt, wo die Schildkröte gerade ist
+
+\end{itemize}
+\item Die nächste Funktion ist dazu da, um alle weisen Spuren, die die Schildkröte schon gezogen hat zu löschen. Dabei wird ein Service gerufen. Der zuständige Knopf ist der 'clear'.
+\item Im Zusammenspiel mit der 'clear' Funktion ist die Funktion zum Farbe ändern. Mit den drei Feldern zum Eingeben der RGB Farbkomponenten und dem 'farbe ->los' Knopf können entsprchende Parameter geändert werden. Der 'farbe zurück' Knopf stellt sie auf das bekannte blau des Simulators zurück. Jedoch wird die Farbänderung erst beim nächsten 'clear' Befehl übernommen.
+\item Die nächste Funktion ist mal wiede ein Serviceruf. Mit dem 'spawn' Befehl wird eine neue Schildkröte eingefügt. Diese erscheint an den Koordinaten, die in den Feldern derüber festgelegt wurden. Die Orientierung ist dabei in Radiant und nicht in Grad anzugeben. 
+\item Da es jetzt auch mehrere Schildkröten gibt muss es auch eine Möglichkeit geben um die Schildkröte, die man gerne steuern würde auszuwählen. Dazu gibt es den Knopf 'schildkr wahl'. Die Schildkröten werden dabei nach dem Zeitpunkt ihres Auftauchens nummeriert. Mit dem Druck auf den Knopf wird die Schildkröte, die im Feld links daneben angegeben ist, ausgewählt.
+\item Alte, störende Schildkröten könne mit dem 'kill' Knopf aus dem Simulator entfernt werden. Alle Schildkröten behalten dabei ihre Nummern und beim nächsten 'spawn' Befehl wird auch die alte unbesetzte Nummer nicht mehr verwendet sondern einfach die nächste Zahl gewählt.
+\item Die wohl aufwändigste Funktion wird mit den Knöpfen 'recautom', 'stoprec', 'resweg' und 'start repeat' bedient. Bei dieser Funktion handelt es sich um eine Teach-and-Follow Funktion. Eine mit der Hand vorgefahrene Bahn kann damit abgespeichert und automatisch nachgefahren werden. Mit 'resweg' wird der Speicher, mit dem auch Tricks abgefahren werden geleert. Wird das nicht gemacht bevor die Aufnahme gestartet wird, dann wird der Trick , der noch im Speicher steht ausgeführt bevor der eigentlich geplante Pfad aubgefahren wird. Wenn man den Speicher zurück gesetzt hat kann man mit dem 'recautom' Knopf die automatische Aufnahme starten. Mit den Schieberglern kann man dann den gewünschten Pfad einstellen. Die Aufnahme erfolgt indem immer die Distanz zwischem dem letzten Punkt und der aktuellen Position bestimmt wird. Wenn die einen voreingestellten Grenzwert überschreitet wird die aktuelle Position dem Speicher hinzugefügt und bildet damit den nächsten Punkt, von dem aus der Abstand gemessen wird. Die Punkte im Speicher werden, genau wie bei 'trick machen', nacheinander angefahren sobald man den 'start repeat' Knopf drückt.
+\item Die Funktion 'ausg' dient lediglich der Fehlersuche. Der Knopf ruft nur  ein neues Fenster auf, in dem zum Beispiel der Wegspeicher angezeigt werden kann.
+\item Die letzte Funktion ist mit dem 'esc' Knopf aufrufbar. Der Knopf schließt einfach die ganze GUI.
+\end{itemize}
+
+
+\section{Entwicklungsplattformen und Sensorik}
+
+\subsection{Clearpath Jackal}
+Beim Jackal des Herstellers Clearpath handelt es sich um eine Sensorträger Plattform. Die Maschine ist optimal zum Entwickeln von Localisierungssystemen. Auch zur Demonstration von anderen Sensorikanordunugen und den damit verbundenen Funktionen wurde der Roboter verwendet.
+
+\subsubsection{technische Daten}
+%\begin{minipage}{20pt}
+
+%\includegraphics[height=4cm]{jackal_techdat.png} 
+
+%\captionof{figure}{Zeichnung und Abmessungen des Jackalroboters}
+%\label{fig:bildjack}
+
+%\end{minipage}
+
+Insgesamt ist die Plattform in einer Größe, die in jeden Kofferraum passt und  auf jeden Schreibtisch gestellt werden kann. Auch vom Gewicht her betrachtet ist der Jackal relativ einfach zu handhaben. Selbst von einer einzigen Person  kann er aufgehoben weden. Desweiteren ist er auch so leicht, dass er ohne Sicherheitsschuhe bedient werden darf. Damit hat man auch keine Probleme bezüglich Passanten. Trotzdem ist er mit einer maximalen Nutzlast von 20kg angegeben, mehr als seinem Eigengewicht. Wird er stark beladen, muss man darauf achten, dass der Schwerpunkt nicht zu hoch wird. Es besteht sonsst Kippgefahr bein Anfahren und Bremsen.\\
+
+\subsubsection{technische Daten}
+%\begin{figure}
+%\includegraphics[height=5cm]{size_weightjack.png} 
+%\caption{Abmessungen und Gewichtsangaben des Jackalroboters}
+%\label{fig:size_wightjack}
+%\end{figure}
+
+Die Spannungsversorgung ist mit drei unterschiedlichen Stufen auch sehr praktisch und umfangreich. Auch die Maximalströme sind in einer höhe die normalerweise verhindert, dass man sich dazu Gedanken machen muss wenn man einen neuen Sensor integriert.\\
+
+%\begin{figure}
+%\includegraphics[height=3cm]{batjack.png} 
+%\caption{Akkuangaben und Spannungsversorgung des Jackalroboter}
+%\label{fig:batjack}
+%\end{figure}
+
+Der Computer, der bereits integriert ist, hat genug leistung um SLAM Algorithmen durchzuführen. Da das die Standartlokalisierungsmethode ist,
+ist auch diese Ausstattung ausreichend. Um den Laserscaner, die Odometry und andere Daten während des Betriebes auf einem externen PC verfolgen zu können ist er WLAN fähig.
+
+%\begin{figure}
+%\includegraphics[height=1.4cm]{pcjack.png} 
+%\caption{Daten des Computers des Jackalroboter}
+%\label{fig:pcjack}
+%\end{figure}
+\section{Begriffserklärung}
+
+ \begin{tabular}{l p{12cm}}
+ 
+  GUI & Abkürzung für grafical user interface - Benutzeroberfläche  \\\\
+   
+   Tkinter& Tkinter ist eine Sprachanbindung für das GUI-Toolkit Tk für die Programmiersprache Python\\\\
+   
+   Tk& Tk ist ein freies, plattformübergreifendes GUI-Toolkit zur Programmierung von grafischen Benutzeroberflächen. \\\\
+   
+RS-485 & EIA-485, auch als RS-485 bezeichnet, ist ein Industriestandard für eine physische Schnittstelle für die asynchrone serielle Datenübertragung. Die symmetrische Leitung erhöht die elektromagnetische Verträglichkeit.  \\ \\
+  
+  Baudrate & .Baudrate ist die Einheit für Übertragungsfrequenz. Bei einer Baudrate von 1 wird ein Symbol pro Sekunde Übertragen.\\\\
+    
+  COM-Port& Kommunikationsschnittstelle im PC für diverse serielle Kommunikationen.\\\\
+  
+ Rendering & Digital erstellte Darstellung eines Objektes aus den räumlichen Dateien.\\\\
+  
+Pythoninterpreter & Der Interpreter ist das Programm, dass aus dem Quellcode in Python den Maschinencode erstellt und ausführt.\\\\
+  
+  String& Der Datentyp String enthält Zeichenketten.\\\\
+  
+  Unix Zeitstempel& Die am weitesten verbreitete Art von Zeitstempeln in Dateisystemen ist wohl die Unixzeit, welche die Anzahl der Sekunden seit dem 1. Januar 1970 00:00 Uhr angibt.\\\\
+  
+  .csv Datei & Das Dateiformat CSV steht für englisch 'Comma separated values'  und beschreibt den Aufbau einer Textdatei zur Speicherung oder zum Austausch einfach strukturierter Daten. \\\\
+  
+  Bibliothek& Eine Bibliothek ist eine Sammlung an Funktionen und Ähnlichem, die man nutzen kann wenn man die Bibliothek importiert.\\\\
+ \end{tabular}
+ 
+ 
+ \begin{tabular}{l p{12cm}}
+  
+  Python & Python ist eine objektorientierte Programmiersprache.\\\\
+  
+  Methode& Ein Methode ist in der objektorientierten Programmierung ein ausführbarer Bestandteil einer Objektklasse.\\\\
+  
+  importieren& Das Bekanntmachen einer Bibliothek um sie zu nutzen.\\\\
+  
+  Modulo & Das Ergebniss dieser Funktion, die als Argument ein Zahenpaar braucht, ist der Rest, der bei einer Division übrig bleiben würde. In Python wird die Funktion mit dem Prozentzeichen verwendet.\\\\
+  
+  GUI&GUI ist die Abkürzung für graphical user interface- zu deutsch graphische Benutzerschnittstelle. \\\\
+  
+  SLAM& SLAM steht für simultaneous localization and mapping. SLAM Probleme beschäftigen sich mit dem Thema, wie man sich in eine Karte gleichzeitig erstellt und die eigene Position ermittelt.\\\\
+  
+  Odometrie& Die Odometrie bezeichnet eine Methode der Wegabschätzung anhand der Daten eines Vortriebssystems. Durch integration der Wegstücke wird eine Lageeinschätzung erreicht. Geeignete Daten sind zum Beispiel die eins Radencoders.\\\\
+  
+  
+ \end{tabular}
+ 
+ \section{Anhänge}
+ \begin{itemize}
+ \item Eine Kopie des gesamten Codes des Pythonskriptes, dass zur Konvertierung geschrieben und in der Arbeit erläutert wurde
+
+ \end{itemize}
+
+\end{onehalfspace}
+\end{document}
