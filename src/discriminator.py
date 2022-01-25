@@ -92,6 +92,7 @@ class Discriminator():
         img_rot = cv2.warpAffine(img, M, (cols, rows))
         self.img_rot_col = img_rot
         grey_rot = cv2.cvtColor(img_rot, cv2.COLOR_BGR2GRAY)
+        #cv2.imshow("rect", img)
 
         height, width, _ = img_rot.shape
         lum_mean = cv2.mean(grey_rot)
