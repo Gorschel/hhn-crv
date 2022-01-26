@@ -62,6 +62,7 @@ pretrained_model_without_top_layer = hub.KerasLayer(feature_extractor_model, inp
 
 num_classes = 2
 
+#model = tf.keras.Sequential([pretrained_model_without_top_layer, tf.keras.layers.Dense(256), tf.keras.layers.Dense(64), tf.keras.layers.Dense(num_classes)])
 model = tf.keras.Sequential([pretrained_model_without_top_layer, tf.keras.layers.Dense(num_classes)])
 
 model.summary()
@@ -70,7 +71,7 @@ model.compile(optimizer="adam", loss=tf.keras.losses.SparseCategoricalCrossentro
 #plt.axis('off')
 #plt.imshow(X[1])
 
-model.fit(X_train_scaled, y_train, epochs=5)
+model.fit(X_train_scaled, y_train, epochs=10)
 print("eval")
 
 model.evaluate(X_test_scaled, y_test)
