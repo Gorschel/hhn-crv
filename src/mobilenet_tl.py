@@ -3,19 +3,9 @@
 
 import numpy as np
 import cv2
-
-import PIL.Image as Image
-import os
-
 import matplotlib.pylab as plt
-
 import tensorflow as tf
 import tensorflow_hub as hub
-
-from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.models import Sequential
-
 import pathlib
 
 from sklearn.model_selection import train_test_split
@@ -23,7 +13,6 @@ from sklearn.model_selection import train_test_split
 IMAGE_SHAPE = (224, 224)
 
 data_dir = pathlib.Path(pathlib.Path.home(), 'PycharmProjects/hhn-crv/data')
-
 
 data_stamped = list(data_dir.glob('stamped_cropped/*'))
 
@@ -51,7 +40,6 @@ for category, images in letters_images_dict.items():
 X = np.array(X)
 y = np.array(y)
 
-#X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0) # ist mit seed, reproduzierbar
 X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.25)
 
 X_train_scaled = X_train / 255
@@ -62,42 +50,32 @@ pretrained_model_without_top_layer = hub.KerasLayer(feature_extractor_model, inp
 
 num_classes = 2
 
-#model = tf.keras.Sequential([pretrained_model_without_top_layer, tf.keras.layers.Dense(256), tf.keras.layers.Dense(64), tf.keras.layers.Dense(num_classes)])
 model = tf.keras.Sequential([pretrained_model_without_top_layer, tf.keras.layers.Dense(num_classes)])
 
 model.summary()
 
 model.compile(optimizer="adam", loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['acc'])
-#plt.axis('off')
-#plt.imshow(X[1])
 
-model.fit(X_train_scaled, y_train, epochs=10)
+model.fit(X_train_scaled, y_train, epochs=5)
 print("eval")
 
 model.evaluate(X_test_scaled, y_test)
 print(len(y_test))
 
-
-
-#result = model.predict(Image.open("goldfish.jpg").resize(IMAGE_SHAPE)[np.newaxis, ...])
 result = model.predict(np.array([X_test_scaled[0]]))
-#print(np.array(X_test_scaled[0]).shape)
-
-
 
 predicted_label_index = np.argmax(result)
 print(predicted_label_index)
-failcont = 0
+failcount = 0
 for i in range(len(X_test)):
     result = model.predict(np.array([X_test_scaled[i]]))
     predicted_label_index = np.argmax(result)
     if predicted_label_index != y_test[i]:
         print(i)
-        failcont += 1
+        failcount += 1
         plt.imshow(X[i])
         plt.show()
 
-
 print("score:")
-print(1-(failcont/len(y_test)))
+print(1-(failcount/len(y_test)))
 
