@@ -30,7 +30,7 @@
 % Vom Studierenden zu aendernde Werte
 \newcommand{\reprttopic}{BRIEFMARKENERKENNUNG}
 \newcommand{\reprtstudentname}{GEORG JAHN, MARTIN HAAG}
-\newcommand{\reprtstudentid}{195XXX, 194980}
+\newcommand{\reprtstudentid}{194985, 194980}
 \urldef{\reprtstudentmail}\url{gjahn@stud.hs-heilbronn.de ,mahaag@stud.hs-heilbronn.de}
 
 \usepackage{ifpdf}
@@ -56,7 +56,7 @@
 \usepackage[section]{placeins} 
 
 % Deckblatt Definitionen (begin)
-\titlehead{\flushright\includegraphics{./bilder/hhn.png}}
+\titlehead{\flushright\includegraphics{./../bilder/hhn.png}}
 \subject{{\hhnsubject{} (\hhnsubjectnum{})}}
 \title{\reprttopic}
 \author{\reprtstudentname\footnote{\reprtstudentid, \reprtstudentmail}}
@@ -75,21 +75,22 @@
 
 \addchap{Abkürzungs- Fremdwort und Fachbegriffsverzeichnis} % (fold)
 \label{sec:abkuerzungsverzeichnis}
-
+\noindent
 \begin{description}
-  \item[NN:] neuronales Netz(-werk)
-  \item[CNN:] convolutional neuronal network
-  \item[Transfer Learning:] Technik, bei der ein bestehendes NN auf ein anders, vergleichbares Problem angewandt wird und dadurch nur wenig trainiert werden muss  
-  \item[RGB-Bild:] Bild mit den Farbkanälen in dieser Reihenfolge
-  \item[Otsu-Methode:] Methode zur Festlegung eines Schwellwertes zur Binarisierung auf Grundlage des Histogrammes
-  \item[morphologischer Filter:] Filter, die im Stande sind, Strukturen von Bildern gezielt zu beeinflussen \cite{digi_bv}
-  \item[PAP: ] Programmablaufplan
+
+  \item[NN:]  neuronales Netz(-werk)
+  \item[CNN:]  convolutional neuronal network
+  \item[Transfer Learning:]  Technik, bei der ein bestehendes NN auf ein anders, vergleichbares Problem angewandt wird und dadurch nur wenig trainiert werden muss  
+  \item[BGR-Bild:]  Bild mit den Farbkanälen in dieser Reihenfolge
+  \item[Otsu-Methode:]  Methode zur automatischen Festlegung eines Schwellwertes zur Binarisierung auf Grundlage des Histogrammes
+  \item[morphologischer Filter:]  Filter, die im Stande sind, Strukturen von Bildern gezielt zu beeinflussen \cite{digi_bv}
+  \item[PAP: ]  Programmablaufplan
   \item[Supervised Learning: ] Lernvorgang anhand eines Datensatzes, bei dem das Musterergebnis bekannt ist
-  \item[Relu6: ] Rectified Linear Unit, eine nicht lineare Aktivierungsfunktion 
-  \item[Adam-Optimizer:] eine Methode zur iterativen Anpassung der Gewichte in einem NN
-  \item[Epoche:] ein ganzer Trainingsdurchgang durch alle Trainingsdaten 
-  \item[Forwardpass:] Berechnung eines Outputs eines NN anhand eines Inputs
-  \item[Data Augmentation:] Erweiterung eines Datensatzes durch Abänderung bestehender Daten
+  \item[Relu6: ]  Rectified Linear Unit, eine nicht lineare Aktivierungsfunktion 
+  \item[Adam-Optimizer:]  eine Methode zur iterativen Anpassung der Gewichte in einem NN
+  \item[Epoche:]  ein ganzer Trainingsdurchgang durch alle Trainingsdaten 
+  \item[Forwardpass:]  Berechnung eines Outputs eines NN anhand eines Inputs
+  \item[Data Augmentation:]  Erweiterung eines Datensatzes durch Abänderung bestehender Daten
    
 \end{description}
 
@@ -144,7 +145,7 @@ In diesem Bereich der Arbeit wird der vorverarbeitete Datensatz für das Trainin
 Das folgende Schaubild zeigt, welche Schritte vorgenommen werden und in welcher Reihenfolge. Dafür wurde ein Beispiel gewählt, bei dem keine Komplikationen auftreten. Auf die einzelnen Schritte wird im folgenden Kapitel \ref{sec_bv:paradebsp} genauer eingegangen. Eine Übersicht über den Ablauf der klassischen Bildverarbeitung ist dem Kapitel \ref{sec_bv:pap} zu entnehmen.
 
 \begin{figure}[h]
-\includegraphics[width=\textwidth]{./bilder/bv_overview.png}
+\includegraphics[width=\textwidth]{./../bilder/bv_overview.png}
 \caption{Übersicht über die Schritte der klassischen Bildverarbeitung}
 \label{fig:bv_overview}
 \end{figure}
@@ -162,8 +163,8 @@ Die beiden Bilder auf der rechten Seite sind Eingang und Ausgang des ersten Schr
 \end{minipage}
 \hfill
 \begin{minipage}[t]{.2\linewidth}
-  \strut\vspace*{-\baselineskip}\newline\includegraphics[width=\linewidth]{./bilder/start_dom}
-  \includegraphics[width=\linewidth]{./bilder/bin1_dom}
+  \strut\vspace*{-\baselineskip}\newline\includegraphics[width=\linewidth]{./../bilder/start_dom}
+  \includegraphics[width=\linewidth]{./../bilder/bin1_dom}
   \caption{Übergang zu Threshold1}
   \label{fig:bv_th1}
 \end{minipage}
@@ -179,7 +180,7 @@ Die Abbilung \ref{fig:bv_morph1} zeigt das Ergebnis des zweiten Schrittes der kl
 \begin{minipage}[t]{.2\linewidth}
 \strut\vspace*{-\baselineskip}
 \newline
-  \includegraphics[width=\linewidth]{./bilder/bin1morph}
+  \includegraphics[width=\linewidth]{./../bilder/bin1morph}
   \caption{Übergang zu morph. Filter1}
   \label{fig:bv_morph1}
 \end{minipage}
@@ -192,8 +193,8 @@ Die Abbildung \ref{fig:bv_rotimg} zeigt, wie gut die Kontur aus dem Binärbild n
 \end{minipage}
 \hfill
 \begin{minipage}[t]{.2\linewidth}
-  \strut\vspace*{-\baselineskip}\newline\includegraphics[width=\linewidth]{./bilder/minarearect_dom}
-  \includegraphics[width=\linewidth]{./bilder/rot_col}
+  \strut\vspace*{-\baselineskip}\newline\includegraphics[width=\linewidth]{./../bilder/minarearect_dom}
+  \includegraphics[width=\linewidth]{./../bilder/rot_col}
   \caption{Rechteck, gerade gedrehtes Bild(warp Affine)}
   \label{fig:bv_rotimg}
 \end{minipage}
@@ -208,7 +209,7 @@ Aus dem gerade gedrehten Bild der Abbildung \ref{fig:bv_rotimg} kann nun wieder 
 \begin{minipage}[t]{.2\linewidth}
 \strut\vspace*{-\baselineskip}
 \newline
-  \includegraphics[width=\linewidth]{./bilder/bin2morph}
+  \includegraphics[width=\linewidth]{./../bilder/bin2morph}
   \caption{Übergang zu morph. Filter2}
   \label{fig:bv_morph2}
 \end{minipage}
@@ -228,7 +229,7 @@ Wie in der Abbildung \ref{fig:bv_prob1} zu sehen ist, können gerade gedrehte Bi
 \begin{minipage}[t]{.2\linewidth}
 \strut\vspace*{-\baselineskip}
 \newline
-  \includegraphics[width=\linewidth]{./bilder/prob1_bin}
+  \includegraphics[width=\linewidth]{./../bilder/prob1_bin}
   \caption{Binarisierung mit drei großen Konturen}
   \label{fig:bv_prob1}
 \end{minipage}
@@ -241,8 +242,8 @@ Ein weiteres Problem ist in Abbildung \ref{fig:bv_prob2} zu erkennen. Hier sind 
 \end{minipage}
 \hfill
 \begin{minipage}[t]{.2\linewidth}
-  \strut\vspace*{-\baselineskip}\newline\includegraphics[width=\linewidth]{./bilder/prob2_bad_bin}
-  \includegraphics[width=\linewidth]{./bilder/prob2_good_bin}
+  \strut\vspace*{-\baselineskip}\newline\includegraphics[width=\linewidth]{./../bilder/prob2_bad_bin}
+  \includegraphics[width=\linewidth]{./../bilder/prob2_good_bin}
   \caption{Binarisierungsproblem durch schwarze Ecken}
   \label{fig:bv_prob2}
 \end{minipage}
@@ -256,12 +257,13 @@ Das letzte Problem, das hier betrachtet werden soll, ist in Abbildung \ref{fig:b
 \end{minipage}
 \hfill
 \begin{minipage}[t]{.2\linewidth}
-  \strut\vspace*{-\baselineskip}\newline\includegraphics[width=\linewidth]{./bilder/prob3_pic}
-  \includegraphics[width=\linewidth]{./bilder/prob3_bad_bin}
+  \strut\vspace*{-\baselineskip}\newline\includegraphics[width=\linewidth]{./../bilder/prob3_pic}
+  \includegraphics[width=\linewidth]{./../bilder/prob3_bad_bin}
   \caption{Binärisierungsproblem durch schlechte Lichtverhältnisse}
   \label{fig:bv_prob3}
 \end{minipage}
 \end{figure}
+
 
 \section{Programmablaufplan}
 \label{sec_bv:pap}
@@ -273,7 +275,7 @@ Der Programmablaufplan (PAP) zeigt, dass das Programm in zwei ineinander geschac
 \begin{minipage}[t]{.33\linewidth}
 \strut\vspace*{-\baselineskip}
 \newline
-  \includegraphics[width=\linewidth]{./bilder/BV_pap}
+  \includegraphics[width=\linewidth]{./../bilder/BV_pap}
   \caption{Programmablaufplan Bildverarbeitung}
   \label{fig:bv_pap}
 \end{minipage}
@@ -300,7 +302,7 @@ Die Abbildung \ref{fig:nn_arc} stellt eine \dq bottleneck depth-seperable convol
 \begin{minipage}[t]{.44\linewidth}
 \strut\vspace*{-\baselineskip}
 \newline
-  \includegraphics[width=\linewidth]{./bilder/mobnet_arc}
+  \includegraphics[width=\linewidth]{./../bilder/mobnet_arc}
   \caption{Aufbau eines Blocks \cite{sandler2019mobilenetv2}}
   \label{fig:nn_arc}
 \end{minipage}
@@ -322,7 +324,7 @@ Die Abbildung \ref{fig:nn_pap} zeigt, welche Schritte zur Implementierung in Pyt
 \begin{minipage}[t]{.24\linewidth}
 \strut\vspace*{-\baselineskip}
 \newline
-  \includegraphics[width=\linewidth]{./bilder/Mobilenet}
+  \includegraphics[width=\linewidth]{./../bilder/Mobilenet}
   \caption{Programmablaufplan NN}
   \label{fig:nn_pap}
 \end{minipage}
@@ -338,7 +340,7 @@ Im Diagramm aus Abbildung \ref{fig:nn_pap} ist zu sehen, wie das NN in zehn Durc
 \begin{minipage}[t]{.47\linewidth}
 \strut\vspace*{-\baselineskip}
 \newline
-  \includegraphics[width=\linewidth]{./bilder/auswertung}
+  \includegraphics[width=\linewidth]{./../bilder/auswertung}
   \caption{Auswertung von zehn Testläufen}
   \label{fig:nn_ausw}
 \end{minipage}
