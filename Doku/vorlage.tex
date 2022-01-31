@@ -23,7 +23,7 @@
   }
 
 % Fachbezogene Werte (müssen aktualisiert werden)
-\newcommand{\hhnsubject}{COMPUTER AND ROBOTVISION}
+\newcommand{\hhnsubject}{COMPUTER \& ROBOT VISION}
 \newcommand{\hhnsubjectnum}{PRÜFUNGSNUMMER: 135031}
 \newcommand{\hhnlecturer}{PROF. DR. DIETER MAIER}
 
@@ -81,7 +81,7 @@
   \item[NN:]  neuronales Netz(-werk)
   \item[CNN:]  convolutional neuronal network
   \item[Transfer Learning:]  Technik, bei der ein bestehendes NN auf ein anders, vergleichbares Problem angewandt wird und dadurch nur wenig trainiert werden muss  
-  \item[BGR-Bild:]  Bild mit den Farbkanälen in dieser Reihenfolge
+  \item[BGR/RGB-Bild:]  Bild mit den Farbkanälen in dieser Reihenfolge
   \item[Otsu-Methode:]  Methode zur automatischen Festlegung eines Schwellwertes zur Binarisierung auf Grundlage des Histogrammes
   \item[morphologischer Filter:]  Filter, die im Stande sind, Strukturen von Bildern gezielt zu beeinflussen \cite{digi_bv}
   \item[PAP: ]  Programmablaufplan
@@ -142,7 +142,7 @@ In diesem Bereich der Arbeit wird der vorverarbeitete Datensatz für das Trainin
 
 \section{Übersicht}
 \label{sec_bv:übersicht}
-Das folgende Schaubild zeigt, welche Schritte vorgenommen werden und in welcher Reihenfolge. Dafür wurde ein Beispiel gewählt, bei dem keine Komplikationen auftreten. Auf die einzelnen Schritte wird im folgenden Kapitel \ref{sec_bv:paradebsp} genauer eingegangen. Eine Übersicht über den Ablauf der klassischen Bildverarbeitung ist dem Kapitel \ref{sec_bv:pap} zu entnehmen.
+Das folgende Schaubild zeigt, welche Schritte vorgenommen werden und in welcher Reihenfolge. Dafür wurde ein Beispielbild gewählt, bei dem keine Komplikationen auftreten. Welche Probleme auftreten können wird im nachfolgenden Kapitel \ref{sec_bv:probleme} erläutert. Auf die einzelnen Schritte wird im folgenden Kapitel \ref{sec_bv:paradebsp} genauer eingegangen. Eine Übersicht über den Ablauf der Bilddatenverarbeitung ist dem Kapitel \ref{sec_bv:pap} zu entnehmen.
 
 \begin{figure}[h]
 \includegraphics[width=\textwidth]{./../bilder/bv_overview.png}
@@ -151,15 +151,14 @@ Das folgende Schaubild zeigt, welche Schritte vorgenommen werden und in welcher 
 \end{figure}
 
 
-
-\section{Beispiel ohne Komplikationen}
+\section{Einzelbeispiel}
 \label{sec_bv:paradebsp}
 
-Im Folgenden wird der Ablauf der klassischen Bildverarbeitung an einem Beispiel, das ohne weiteren Aufwand funktioniert, genauer erläutert.
+Im Folgenden werden die Zwischenschritte und der Gesamtablauf der klassischen Bildverarbeitung am Beispiel einer einzelnen Briefmarke aufgezeigt.
 \begin{figure}
 
 \begin{minipage}[t]{.75\linewidth}
-Die beiden Bilder auf der rechten Seite sind Eingang und Ausgang des ersten Schrittes (Raw -> Threshold1). Das Raw Bild ist dabei ein RGB-Bild, auf dem die Briefmarke in zufälliger Orientierung zu sehen ist. Der Hintergrund ist matt und schwarz-grau. Der Übergang zu Threshold1 wird mit einer Otsu-Binarisierung bewerkstelligt. Es wird also in ein Graustufenbild übergegangen. Je nach Motiv der Briefmarke sind im Binärbild jedoch noch viele schwarze Stellen auf der Briefmarke. Dadurch resultiert die Marke nicht in einer einzelnen großen Kontur, sondern in vielen kleinen. Da wir jedoch erst mal das Bild gerade drehen wollen, bräuchten wir dafür eine einzige große, möglichst rechteckige Kontur.
+Die Bilder wurden mit einer gewöhnlichen Handykamera aufgenommen. Des Weiteren wurde ein mattierter, dunkelgrauer Hintergrund für alle Bilder festgelegt, denn auf einem relativ hellen Hintergrund würde der ``Schatten'' der Briefmarke nicht ausreichen um die entsprechende Kontur zu finden. \\Die beiden Bilder (Abbildung \ref{fig:bv_th1}) sind Eingang und Ausgang des ersten Schrittes (Raw => Threshold1). Das Raw Bild ist dabei ein gewöhnliches RGB-Bild, auf dem die Briefmarke in zufälliger Orientierung abgelichtet ist. Dieses wird zunächst in ein Graustufenbild umgewandelt. Durch eine nachfolgende Otsu-Binarisierung wird der grobe Umriss der Briefmarke auf dem Hintergrund definitiv entdeckt. Je nach Motiv der Briefmarke sind im Binärbild jedoch noch viele ``Löcher'' beziehungsweise schwarze Stellen. Für die Briefmarkensammlung kann nicht vorhergesehen werden, ob oder wie viele dieser Löcher in diesem Schritt entstehen. Das Ziel dieses Schrittes soll allerdings lediglich das generelle Auffinden (Position, Orientierung) der Briefmarke sein.
 \end{minipage}
 \hfill
 \begin{minipage}[t]{.2\linewidth}
@@ -173,8 +172,7 @@ Die beiden Bilder auf der rechten Seite sind Eingang und Ausgang des ersten Schr
 
 \begin{figure}[h]
 \begin{minipage}[t]{.75\linewidth}
-
-Die Abbilung \ref{fig:bv_morph1} zeigt das Ergebnis des zweiten Schrittes der klassischen Bildverarbeitung. Hier sind keine dunklen Stellen mehr auf der Fläche der Briefmarke. Das wurde durch die Verwendung eines morphologischen Filters zur Erweiterung und Schließung von Konturen erreicht. Es wurde dafür eine quadratische Matrix mit Größe 11x11 verwendet. Bei einer Auflösung von 320x240 ist das ganz stattlich.
+Da zu diesem Zeitpunkt keine Details aus dem Originalbild benötigt werden, bietet es sich an, über das Binärbild einen morphologischen Rechteck-Filter laufen zu lassen um einerseits die Löcher im Inneren zu schließen und andererseits eventuelle Unförmigkeiten der Briefmarke auszugleichen. Dies wird durch eine Dilatation, gefolgt von einer Erosion erreicht. Die Größe der Kernel-Matrix für dieses Verfahren wurde bei einer Auflösung von 240x320 auf 11x11 festgelegt. Die Abbilung \ref{fig:bv_morph1} zeigt das Ergebnis dieses zweiten Schrittes. Hierbei sind keine dunklen Stellen mehr auf der Fläche der Briefmarke erkennbar.
 \end{minipage}
 \hfill
 \begin{minipage}[t]{.2\linewidth}
@@ -188,8 +186,7 @@ Die Abbilung \ref{fig:bv_morph1} zeigt das Ergebnis des zweiten Schrittes der kl
 
 \begin{figure}[h]
 \begin{minipage}[t]{.75\linewidth}
-
-Die Abbildung \ref{fig:bv_rotimg} zeigt, wie gut die Kontur aus dem Binärbild nun die Briefmarke repräsentiert. Der blaue Rahmen aus dem oberen Teil der rechten Abbildung wird mit der opencv Methode minAreaRect aus der Kontur des Binärbildes gewonnen. Mit dem Verdrehwinkel dieses Rechtecks kann nun das ursprüngliche Bild ausgerichtet werden. Dies geschieht mithilfe der warpAffine Funktion. Um diese zu nutzen muss vorher noch eine 2D Rotationsmatrix erstellt werden. Dafür werden die Werte des Rechtecks verwendet. Das gerade gedrehte Bild ist im unteren Teil von Abbildung \ref{fig:bv_rotimg} zu erkenne.
+Zu diesem Zeitpunkt ist es nun robust möglich die Kontur der Briefmarke zu finden. Für den Fall, dass trotz der morphologischen Filterung noch ``Löcher'' existieren, wird über Flächen- und Hierarchiebedingungen ausgeschlossen, dass deren Konturen weiter verfolgt werden. \\Die Abbildung \ref{fig:bv_rotimg} zeigt, wie gut die gefundene Kontur aus dem Binärbild nun die Briefmarke repräsentiert. Der blaue Rahmen aus dem oberen Teil der rechten Abbildung wird mit der opencv Methode minAreaRect aus der Kontur des Binärbildes gewonnen. Über den Winkel dieses Rechteckts kann nun das ursprüngliche Bild am Bildkoordinatensystem ausgerichtet werden. Dies geschieht mithilfe der warpAffine Funktion. Um diese zu nutzen muss vorher noch eine 2D Rotationsmatrix erstellt werden. Dafür werden die Werte des Rechtecks verwendet. Das fertig gedrehte Bild ist im unteren Teil von Abbildung \ref{fig:bv_rotimg} zu erkennen. Allerdings bilden sich durch die Rotation leere (schwarze) Bildbereiche. Diese werden wie in Kapitel \ref{sec_bv:probleme} beschrieben, mit dem Mittelwert des gesamten Bildes aufgefüllt.
 \end{minipage}
 \hfill
 \begin{minipage}[t]{.2\linewidth}
@@ -202,8 +199,8 @@ Die Abbildung \ref{fig:bv_rotimg} zeigt, wie gut die Kontur aus dem Binärbild n
 
 \begin{figure}[h]
 \begin{minipage}[t]{.75\linewidth}
-
-Aus dem gerade gedrehten Bild der Abbildung \ref{fig:bv_rotimg} kann nun wieder ein Binärbild erstellt werden. Wenn man darauf wieder morphologische Filter anwendet, kann ein Binärbild wie in Abbildung \ref{fig:bv_morph2} erreicht werden. Das Rechteck aus dieser Kontur ist nun geeignet, um die Briefmarke aus dem gerade gedrehten Farbbild auszuschneiden. Das ausgeschnittene Bildstück hat natürlich von Marke zu Marke andere Größenverhältnisse. Die Briefmarken haben schließlich nicht nur unterschiedliche Formate, sondern sind auch nicht alle aus der perfekt gleichen Distanz fotografiert worden. Da das NN eine bestimmte Inputgröße erfordert, muss hier also noch was geändert werden.
+Nun werden die beiden bereits gezeigten Schritte (siehe Abbildungen \ref{fig:bv_th1} (binarisierung) und \ref{fig:bv_morph1} (morphologische Filterung)) erneut auf das gedrehte Bild angewandt. Diese Redundanz erspart einerseits die benötigte Umrechnung des gefundenen ``minAreaRects'' auf die Drehachse und andererseits erhöht sich dadurch die allgemeine Fehlerrobustheit des Programms.\\
+Aus dem gerade-gedrehten Bild der Abbildung \ref{fig:bv_rotimg} wird nun wieder ein Binärbild erstellt. Wenn man darauf wieder morphologische Filter anwendet, kann ein Binärbild wie in Abbildung \ref{fig:bv_morph2} erreicht werden. Das Rechteck (boundingBox) dieser Kontur ist nun geeignet, um die Briefmarke aus dem gerade gedrehten Farbbild auszuschneiden. Das ausgeschnittene Bildstück hat natürlich von Marke zu Marke andere Größenverhältnisse. Die Briefmarken haben schließlich nicht nur unterschiedliche Formate, sondern sind auch nicht alle aus Derselben Richtung fotografiert worden. Da das NN eine bestimmte Inputgröße erfordert, muss das ausgeschnittene RGB-Bildstück Anschließend auf die Größe des ``input-layers'' skaliert werden (siehe nachfolgendes Kapitel \ref{sec_nn:impl}).
 \end{minipage}
 \hfill
 \begin{minipage}[t]{.2\linewidth}
@@ -223,7 +220,7 @@ In diesem Abschnitt sollen aufgetretene Probleme geschildert und die dafür gefu
 \begin{figure}[h]
 \begin{minipage}[t]{.75\linewidth}
 
-Wie in der Abbildung \ref{fig:bv_prob1} zu sehen ist, können gerade gedrehte Bilder nach der Binarisierung durch ein ungünstiges Motiv mehrere zureichend große Konturen enthalten. Das Kriterium, das darüber entschieden hat, ob die Kontur eine potenzielle Briefmarke ist, war vorher nur die Fläche. Demnach würden hier drei Bilder für das NN ausgeschnitten werden. Um das zu verhindern, wird hier auf eine Hierarchiebedingung zurückgegriffen. Diese lautet, dass nur Konturen ohne Elternkontur weiter genutzt werden. Im Beispiel rechts fallen deshalb die blau und die rot markierten Konturen weg und nur die richtige, grüne, bleibt übrig.
+Wie in der Abbildung \ref{fig:bv_prob1} zu sehen ist, können gerade gedrehte Bilder nach der Binarisierung durch ein ungünstiges Motiv mehrere zureichend große Konturen enthalten. Das Kriterium, welches entscheidet ob die iterierte Kontur eine potenzielle Briefmarke ist, war vorher nur die Größe der von der  Kontur eingeschlossenen Fläche. Demnach würden hier drei Bilder für das NN ausgeschnitten werden. Um das zu verhindern, wird hierbei auf eine Hierarchiebedingung zurückgegriffen. Diese lautet, dass der Programmcode nur für Konturen ohne weitere umliegende Konturen (Elternkontur) weiter ausgeführt wird. Für das Beispiel (Abbildung \ref{fig:bv_prob1}) fallen deshalb die markierten Konturen (blau \& rot) weg und nur die interessanteste (grün) bleibt übrig.
 \end{minipage}
 \hfill
 \begin{minipage}[t]{.2\linewidth}
@@ -237,8 +234,7 @@ Wie in der Abbildung \ref{fig:bv_prob1} zu sehen ist, können gerade gedrehte Bi
 
 \begin{figure}[h]
 \begin{minipage}[t]{.75\linewidth}
-
-Ein weiteres Problem ist in Abbildung \ref{fig:bv_prob2} zu erkennen. Hier sind durch die Rotation große schwarze Flächen in den Ecken entstanden. Zur Binarisierung wird die Otsu-Methode verwendet, der Schwellwert zur Binarisierung wird also automatisch und abhängig vom Bild und dessen Histogramm festgelegt. Normalerweise ist der Hintergrund dunkler als die Briefmarke. Durch die dunklen Ecken wird aber eine dritten, noch dunklere Fläche eingeführt. Dadurch verschiebt sich der Schwellwert in eine mittlere Helligkeitsstufe und Teile des Hintergrundes werden mit Weiß binarisiert (oberer Teil der Abbildung). Um dieses Problem zu beheben wurden die dunklen Stellen mit dem Mittelwert der Helligkeit des Originalbildes nachgefärbt. Dadurch wird der Schwellwert deutlich schwächer beeinflusst und die Binarisieurng kann die Briefmarke wieder korrekt herausfiltern.
+Ein weiteres Problem ist in Abbildung \ref{fig:bv_prob2} zu erkennen. Hier sind durch die Rotation große schwarze Flächen beziehungsweise ``leere'' Bereiche in den Ecken entstanden. Zur Binarisierung wird die Otsu-Methode verwendet, der Schwellwert zur Binarisierung wird also automatisch und abhängig vom Bild und dessen Histogramm festgelegt. Normalerweise ist der Hintergrund dunkler als die Briefmarke. Jedoch wird durch die entstandenen schwarzen Ecken eine neue Histogramm-Klasse für die Zahl 0 gebildet. Dadurch verschiebt sich der optimierte Histogramm-Klassen-Schwellwert den die Otsu Methode liefert. Bei ausreichend großen schwarzen Ecken verschiebt sich der Schwellwert in eine geringere Graustufe, sodass und Teile des Briefmarken-Hintergrundes ebenfalls über die binarisierungsschwelle rutschen (oberer Teil der Abbildung \ref{fig:bv_prob2}). Um dieses Problem zu beheben wurden die schwarzen Pixel mit dem Mittelwert der Helligkeit des Originalbildes nach-gefärbt. Dadurch reduziert sich die Verschiebung des Otsu-Schwellwertes und die Binarisierung kann folglich die Briefmarke wieder korrekt herausfiltern.
 \end{minipage}
 \hfill
 \begin{minipage}[t]{.2\linewidth}
@@ -253,7 +249,7 @@ Ein weiteres Problem ist in Abbildung \ref{fig:bv_prob2} zu erkennen. Hier sind 
 \begin{figure}[h]
 \begin{minipage}[t]{.75\linewidth}
 
-Das letzte Problem, das hier betrachtet werden soll, ist in Abbildung \ref{fig:bv_prob3} zu sehen. Auch wenn es mit dem menschlichen Auge nur schwer zu erkennen ist, ist das Bild sehr ungleichmäßig beleuchtet. Dadurch ist der ursprünglich schwarze Hintergrund in großen Bereichen sogar heller als die Briefmarke. Dadurch kann die Briefmarke gar nicht erst gerade gedreht werden. Im Vergleich zum vorher gegangenen Problem entstehen die Komplikationen also nicht erst durch während der Verarbeitung (wie zB. die schwarzen Ecken) sondern die Ursache dafür ist eine schlechte Qualität im Originalbild. Dieser Fall ist jedoch im ganzen Datensatz nur einmal aufgetreten.  Da wir entschieden haben, dass dieser Verlust verkraftbar ist, wurden hier keine weiteren Anstrengungen unternommen, um das letzte Bild auch noch zu retten.
+Das letzte Problem, das hier betrachtet werden soll, ist in Abbildung \ref{fig:bv_prob3} zu sehen. Auch wenn es mit dem menschlichen Auge nur schwer zu erkennen ist, ist das Bild sehr ungleichmäßig beleuchtet. Dadurch ist der ursprünglich schwarze Hintergrund in großen Bereichen sogar heller als die eigentliche Briefmarke. Wodurch die Briefmarke gar nicht erst gerade gedreht werden kann. Im Vergleich zum vorher gegangenen Problem entstehen die Komplikationen also nicht erst während der Verarbeitung - wie beispielsweise die schwarzen Ecken - sondern die Ursache dafür ist eine schlechte Qualität rohen Originalbild. Dieser Fall ist jedoch im ganzen Datensatz nur einmal aufgetreten.  Da wir entschieden haben, dass dieser Verlust verkraftbar ist, wurden hier keine weiteren Anstrengungen unternommen, um das Programm hierhin gehend weiter anzupassen.
 \end{minipage}
 \hfill
 \begin{minipage}[t]{.2\linewidth}
@@ -269,7 +265,7 @@ Das letzte Problem, das hier betrachtet werden soll, ist in Abbildung \ref{fig:b
 \label{sec_bv:pap}
 \begin{figure}[h]
 \begin{minipage}[t]{.62\linewidth}
-Der Programmablaufplan (PAP) zeigt, dass das Programm in zwei ineinander geschachtelten Schleifen abläuft. In der äußeren Schleife wird über die Liste der Bilder iteriert. Sollte eine Kontur mit ausreichender Größe durch die Binarisierung entstehen, wird daraufhin in die zweite Schleife übergegangen. In dieser wird über die gefundenen Konturen nach der zweiten Binarisierng und Dilatation iteriert. Zuerst wird dann die Fläche jeder Kontur abgefragt. Sollte die ausreichend sein, ist die nächste Bedingung die Hierarchiebedingung, die das Problem aus \ref{fig:bv_prob1} löst. Wenn beide Bedingungen erfüllt wurden wird der Bildausschnitt dem Benutzer angezeigt. Sollte dieser den Ausschnitt für gut befinden kann er mit der "g" Taste der Tastatur die Briefmarke abspeichern. Mit der "b" Taste werden diverse Zwischenergebnisse in Form von Bilddateien in einen separaten Ordner abgelegt. Dies erleichtert die Fehlersuche, ist aber für die Funktion des Programms unwichtig. Sollte das Bild weder gut noch einen interessanten Fehler hervorrufen, kann mit einer beliebigen Taste mit dem nächsten Bild fortgefahren werden. Zusätzlich zur Anzeige der Bilder gibt eine Konsolenausgabe auch noch Aufschluss über die Anzahl der Schleifendurchläufe (Anzahl bearbeiteter Bilder und Konturen). Durch die beiden Schleifen und das zweimalige Binarisieren ist der Code zwar nicht besonders performant, aber gut nachvollziehbar. Da für jede Marke eine Benutzereingabe erforderlich ist, ist es egal, dass der Code nicht besonders effizient programmiert wurde. Solange es dem Benutzer noch flüssig vorkommt, wird praktisch keine Zeit verloren, denn die Wartezeit auf die Eingabe macht die meiste Zeit aus.
+Der Programmablaufplan (PAP) zeigt, dass das Programm in zwei ineinander geschachtelten Schleifen abläuft. In der äußeren Schleife wird über die Liste der Bilder iteriert. Sollte eine Kontur mit ausreichender Größe durch die Binarisierung entstehen, wird daraufhin in die zweite Schleife übergegangen. In dieser wird über die gefundenen Konturen nach der zweiten Binarisierng und Dilatation iteriert. Zuerst wird dann die Fläche jeder Kontur abgefragt. Sollte die ausreichend sein, ist die nächste Bedingung die Hierarchiebedingung, die das Problem aus \ref{fig:bv_prob1} löst. Wenn beide Bedingungen erfüllt wurden wird der Bildausschnitt dem Benutzer angezeigt. Sollte der bedienende Mensch den Ausschnitt für gut befinden kann er mit der "g" Taste der Tastatur die Briefmarke abspeichern. Mit der "b" Taste werden diverse Zwischenergebnisse in Form von Bilddateien in einen separaten Ordner abgelegt. Dies erleichtert die Fehlersuche, ist aber für die Projektaufgabe irrelevant. Sollte das Bild weder gut sein,  noch einen interessanten Fehler hervorrufen, kann mit einer beliebigen Taste mit dem nächsten Bild fortgefahren werden. Zusätzlich zur Anzeige der Bilder gibt eine Konsolenausgabe auch noch Aufschluss über die Anzahl der Schleifendurchläufe (Anzahl bearbeiteter Bilder und Konturen). Durch die beiden Schleifen und vor allem durch das zweimalige Binarisieren ist der Code zwar nicht optimiert, dafür aber gut nachvollziehbar und performant genug (vor allem wegen der guten Effizienz der OpenCV-Bibliothek). Die Rechenzeit für den Durchlauf einer Marke durch das Programm verglichen mit der Reaktionszeit des Bedieners, ist geringer. Dadurch läuft das Programm auch auf kleinen Maschinen relativ flüssig.
 \end{minipage}
 \hfill
 \begin{minipage}[t]{.33\linewidth}
@@ -318,7 +314,7 @@ Dieses Netzwerk wurde von Google auf einen Datensatz von 1.4 Millionen Bilder au
 \begin{figure}[h]
 \begin{minipage}[t]{.71\linewidth}
 
-Die Abbildung \ref{fig:nn_pap} zeigt, welche Schritte zur Implementierung in Python nötig waren. Zuerst ist natürlich wieder das Einlesen der Daten durchzuführen. Mit Hilfe einer assoziativen Liste (Dictionary) werden die Listen, die die Pfade zu den einzelnen Bildern enthalten, den beiden Klassen 0 und 1 zugewiesen. 0 steht in diesem Fall für gestempelt und 1 für ungestempelt. Als Nächstes wird der Datensatz zufällig durchgemischt und dann in Verhältnis eins zu drei aufgeteilt. Der dreiviertelste Teil wird nachher zum Training verwendet. Mit dem kleineren Teil wird die Auswertung des Ergebnisses durchgeführt. Danach werden die Farbwerte aller Kanäle durch 255 geteilt, um den Wertebereich auf 0-1 zu reduzieren. Abschließend werden die Bilder des Datensatzes auf die Größe 224x224 geändert. Das NN kann schließlich nur mit Bildern gleicher Größe arbeiten. Damit ist die Arbeit am Datensatz abgeschlossen. Als Nächstes muss das vortrainierte Model heruntergeladen werden. An diesem fehlt jedoch noch das Ausgabelayer. Das wird dann noch hinzugefügt. Damit ist das Netzwerk vollständig, nur die Gewichte des Ausgabelayers müssen noch trainiert werden. Das Training erfolgt über fünf Epochen mit dem Adam-Optimizer. Bereits nach diesen fünf Epochen konvergieren die Ergebnisse des NN sehr gut. Damit ist das NN dann bereit, die Bilder des Testdatensatzes zu klassifizieren. Dazu wird zu jedem Bild des Testdatensatzes ein Forwardpass durchgeführt. Hat die richtige Klasse den höheren Wert am Ausgabelayer, war die Klassifizierung erfolgreich. Über die Konsole wird der Benutzer dann informiert, wie das NN abgeschnitten hat. Zusätzlich werden die falsch klassifizierten Bilder dann dem Benutzer angezeigt. Damit kann er dann versuchen nachzuvollziehen, warum es falsch klassifiziert wurde.
+Die Abbildung \ref{fig:nn_pap} zeigt, welche Schritte zur Implementierung in Python nötig waren. Zuerst ist natürlich wieder das Einlesen der Daten durchzuführen. Mit Hilfe einer assoziativen Liste (Dictionary) werden die Listen, die die Pfade zu den einzelnen Bildern enthalten, den beiden Klassen 0 und 1 zugewiesen. 0 steht in diesem Fall für gestempelt und 1 für ungestempelt. Als Nächstes wird der Datensatz zufällig durchgemischt und dann in Verhältnis eins zu drei aufgeteilt. Der dreiviertelste Teil wird nachher zum Training verwendet. Mit dem kleineren Teil wird die Auswertung des Ergebnisses durchgeführt. Danach werden die Farbwerte aller Kanäle durch 255 geteilt, um den Wertebereich auf 0-1 zu normieren. Abschließend werden die Bilder des Datensatzes auf die Größe 224x224 geändert. Das NN kann schließlich nur mit Bildern gleicher Größe arbeiten. Damit ist die Arbeit am Datensatz abgeschlossen. Als Nächstes muss das vortrainierte Model heruntergeladen werden. An diesem fehlt jedoch noch das Ausgabelayer. Das wird dann noch hinzugefügt. Damit ist das Netzwerk vollständig, nur die Gewichte des Ausgabelayers müssen noch trainiert werden. Das Training erfolgt über fünf Epochen mit dem Adam-Optimizer. Bereits nach diesen fünf Epochen konvergieren die Ergebnisse des NN sehr gut. Damit ist das NN dann bereit, die Bilder des Testdatensatzes zu klassifizieren. Dazu wird zu jedem Bild des Testdatensatzes ein Forwardpass durchgeführt. Hat die richtige Klasse den höheren Wert am Ausgabelayer, war die Klassifizierung erfolgreich. Über die Konsole wird der Benutzer dann informiert, wie das NN abgeschnitten hat. Zusätzlich werden die falsch klassifizierten Bilder dann dem Benutzer angezeigt. Damit kann er dann versuchen nachzuvollziehen, warum es falsch klassifiziert wurde.
 \end{minipage}
 \hfill
 \begin{minipage}[t]{.24\linewidth}
@@ -350,7 +346,7 @@ Im Diagramm aus Abbildung \ref{fig:nn_pap} ist zu sehen, wie das NN in zehn Durc
 \label{sec:fazit}
 
 Abschließend lässt sich sagen, dass das Projekt als Proof of Concept durchaus erfolgreich war. Es konnte gezeigt werden, dass mit dem NN MobilNetV2 mit einer zusätzlichen einfachen Vorverarbeitung Briefmarke in gestempelt und nicht gestempelt unterschieden werden können. Mit etwa 90\% ist die Rate an richtigen Klassifizierungen zwar nicht besonders hoch, doch angesichts des sowohl kleinen als auch qualitativ schlechten Datensatzes ist es kein schlechtes Ergebnis.\\
-Eine Möglichkeit zum Verbessern des Datensatzes währe die Technik der \dq Data Augmentation\dq\ gewesen. Dabei werden aus den vorhandenen Daten weitere Daten durch Operationen wie Spiegelung, Drehung, Helligkeitsänderung etc. generiert und der Datensatz so erweitert.\\
+Eine Möglichkeit zum Verbessern des Datensatzes wäre die Technik der \dq Data Augmentation\dq\ gewesen. Dabei werden aus den vorhandenen Daten weitere Daten durch Operationen wie Spiegelung, Drehung, Helligkeitsänderung (et cetera) generiert und der Datensatz so erweitert.\\
 Das Verbesserungspotenzial liegt jedoch nicht nur beim Datensatz, wenn auch das wahrscheinlich das größte Defizit unserer Arbeit ausmacht. Ein anderer Bereich, der wohl verbessert werden kann, ist die Auswahl des Netzwerkes. Hier hätte kein Fokus auf Effizienz gelegt werden müssen, denn durch das \dq Transfer Learning\dq\ ist der Trainingsbedarf sehr niedrig. 
 
 
