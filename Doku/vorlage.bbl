@@ -5,15 +5,19 @@ B.~M. Burger~W., {\em Digitale Bildverarbeitung}.
 \newblock Springer-Verlag Berlin Heidelberg, 2015.
 
 \bibitem{seperable_convolution}
-towardsdatascience, ``a-basic-introduction-to-separable-convolutions.''
+towardsdatascience, ``a-basic-introduction-to-separable-convolutions.'',
   https://towardsdatascience.com/a-basic-introduction-to-separable-convolutions-b99ec3102728.
 
 \bibitem{residuals_and_bottleneck}
-towardsdatascience, ``mobilenetv2-inverted-residuals-and-linear-bottlenecks.''
+towardsdatascience, ``mobilenetv2-inverted-residuals-and-linear-bottlenecks.'',
   https://towardsdatascience.com/mobilenetv2-inverted-residuals-and-linear-bottlenecks-8a4362f4ffd5.
 
 \bibitem{sandler2019mobilenetv2}
 M.~Sandler, A.~Howard, M.~Zhu, A.~Zhmoginov, and L.-C. Chen, ``Mobilenetv2:
-  Inverted residuals and linear bottlenecks,'' 2019.
+  Inverted residuals and linear bottlenecks'', 2019.
+ 
+\bibitem{skript_maier}
+Prof.~ Dr.~ rer.~ nat.~ Dieter Maier, ``Lecture in Computer \& Robot-Vision'', 2021.
+
 
 \end{thebibliography}

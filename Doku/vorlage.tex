@@ -109,27 +109,27 @@
 
 \section{Motivation} % (fold)
 \label{sec:motivation}
-Bildverarbeitung ist kein neues Feld der Forschung mehr und auch neuronale Netzwerke sind bereits seit vielen Jahren Subjekt von ständiger Weiterentwicklung. Da diese beiden Fachgebiete durchaus gut miteinander harmonieren, haben wir uns entschieden, in unserem Projekt eine Aufgabe, die beides benötigt, zu bearbeiten. Im Rahmen unseres CRV Projektes haben wir deshalb die Unterscheidung von Briefmarken in gestempelte und ungestempelte automatisiert mithilfe einer künstlichen Intelligenz durchgeführt. Wenn auch unsere Arbeit sehr unwahrscheinlich kommerzielle Anwendung findet, ist es doch geeignet, um an einem Tag der offenen Tür oder einem \dq studieren probieren\dq\ Event demonstriert zu werden.
+Bildverarbeitung ist kein neues Feld der Forschung mehr und auch neuronale Netzwerke sind bereits seit vielen Jahren Subjekt von ständiger Weiterentwicklung. Da diese beiden Fachgebiete durchaus gut miteinander harmonieren, haben wir uns entschieden, eine Projektaufgabe zu wählen, die diese Beiden Gebiete fusioniert. Im Rahmen dieses Computer \& Robot Vision-Projektes haben wir deshalb die Unterscheidung von Briefmarken in gestempelte und ungestempelte automatisiert mithilfe einer \dq künstlichen Intelligenz\dq\ durchgeführt. Wenn auch unsere Arbeit sehr unwahrscheinlich kommerzielle Anwendung findet, ist es doch geeignet, um an einem Tag der offenen Tür oder einem \dq studieren probieren\dq\ Event demonstriert zu werden.
 
 % section motivation (end)
 
 \section{Ziel der Arbeit} % (fold)
 \label{sec:ziel_der_arbeit}
-Das Ziel der Arbeit war es, mithilfe eines Teils klassischer Bildverarbeitung und eines neuronalen Netzwerkes (NN) Bilder von gestempelten von Bildern mit ungestempelten Briefmarken zu unterscheiden.Ursprünglich war der Plan, mit Bildern von ganzen Briefen zu arbeiten. Der Vorteil bei diesem Ansatz wäre, dass die Überlappung des Stempels über Briefmarke und Brief es wohl für das Netzwerk einfacher gemacht hätte, die Klassen gestempelt/nicht gestempelt zu unterscheiden. Aufgrund von Datenschutzgesetzen waren wir jedoch nicht in der Lage, einen ausreichend großen Datensatz zusammen zu tragen. Deshalb haben wir uns entschieden, eine alte, selbst gesammelte Briefmarkensammlung abzufotografieren und somit zu digitalisieren.
-Dieser selbst generierte Datensatz ist zwar auch nicht groß genug, um ein ordentliches, aussagekräftiges Training mit einem NN durchzuführen, reicht aber für einen \dq Proof of Concept\dq\
+Das Ziel der Arbeit war es, mithilfe klassischer Bildverarbeitung und eines neuronalen Netzwerkes (NN), gestempelte Briefmarken von ungestempelten zu unterscheiden. Ursprünglich war der Plan, mit Bildern von ganzen Briefen zu arbeiten. Dadurch würde der Stempel über den Briefmarken-Rand überlappen, was den Vorteil hätte, dass das Netzwerk deutlich robuster sein könnte. Aufgrund der geltenden Datenschutzgesetze und dem mittlerweile hohen Anteil an digital gestempelten Briefen waren wir jedoch nicht in der Lage, einen ausreichend großen Datensatz zusammen zu tragen. Deshalb haben wir uns entschieden eine Briefmarkensammlung zu digitalisieren. Dafür wurden die einzelnen Briefmarken auf einen dunklen Untergrund gelegt und mit einem Handy fotografiert.
+Dieser selbst generierte Datensatz ist zwar auch nicht wirklich groß genug um aussagekräftige beziehungsweise robuste Trainingserfolge mit einem NN zu erzielen, für einen \dq Proof of Concept\dq\ reicht die Bildersammlung allerdings aus.
 
 % section ziel_der_arbeit (end)
-
+\newpage
 \section{Vorgehensweise} % (fold)
 \label{sec:vorgehensweise}
 
 Unser Vorgehen teilt sich in zwei Teilschritte auf:
 \begin{itemize}
-\item klassische Bildverarbeitung:\\ 
-Dabei werden die Bilder so vorverarbeitet, dass sie als Input für das NN dienen können. Das wird mit Hilfe von helligkeitsbasierte Binarisierung und einigen morphologischen Filtern erreicht. Außerdem kommen noch Schritte zum Drehen des Bildes zum Einsatz. Das Endergebnis dieser Bildverarbeitungsschritte ist ein rechteckiger Bildausschnitt, der nur die Briefmarke enthält.
+\item Klassische Bildverarbeitung:\\ 
+Die Roh-Bilder sollen so vorverarbeitet werden, dass sie als Input für das NN dienen können. Dafür wird ein quadratisches Bildverhältnis benötigt. Für diesen Schritt sollen Funktionen und Werkzeuge aus der OpenCV-Programmbibliothek verwendet werden. Dazu zählen die helligkeitsbasierte Binarisierung, die morphologischen Filterung, die Drehung des Bildes und schlussendlich die Skalierung auf ein durch das NN bestimmte Seitenverhältnis. Das Endergebnis dieser Bildverarbeitungsschritte kristallisiert sich ein rechteckiger Bildausschnitt heraus, der nur noch die Briefmarke enthält.
 
 \item Klassifizierung mit einem NN:\\
-In diesem Bereich der Arbeit wird der vorverarbeitete Datensatz für das Training und die Evaluierung des NN aufbereitet. Außerdem wird das NN selbst hier erstellt. Da wir die Technik des \dq Transfer Learning\dq\ genutzt haben, wurde hier nur ein vortrainiertes Model herausgesucht und das Outputlayer ausgetauscht.
+In diesem Bereich der Arbeit wird der vorverarbeitete Datensatz für das Training und die Evaluierung des NN noch einmal weiter aufbereitet, denn Neuronale Netze erwarten als Eingabe immer ein Bild mit konstanter Größe. Außerdem wird hier das NN selbst initialisiert. Da wir die Technik des \dq Transfer Learnings\dq\ genutzt haben, konnte hierfür ein vortrainiertes Modell herausgesucht werden, bei dem nur die letzte Ebene - das sogenannte Outputlayer - ausgetauscht werden soll.
 
 \end{itemize}
 
